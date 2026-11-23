@@ -1,0 +1,22 @@
+.venv/
+__pycache__/
+.pytest_cache/
+*.py[cod]
+.DS_Store
+
+# Keep model-development assets out of the deployment repository.
+external/
+notebooks/
+scripts/
+data/mbb/
+data/20*
+data/*log*
+data/*.txt
+data_dictionary.csv
+matchup_stints_log.txt
+pbp_log.txt
+possessions_log.txt
+
+# Streamlit only needs these generated exports.
+!data/2027_upcoming_predictions.csv
+!data/schedule_2027_upcoming.csv
