@@ -7,7 +7,8 @@ __pycache__/
 # Keep model-development assets out of the deployment repository.
 external/
 notebooks/
-scripts/
+scripts/*
+!scripts/parse_2027_matchups.py
 data/mbb/
 data/20*
 data/*log*
