@@ -125,6 +125,12 @@ maximum_date = predictions["game_date"].max()
 
 with st.sidebar:
     st.header("Explore projections")
+    st.page_link(
+        "pages/How_It_Works.py",
+        label="How the model works",
+        icon="📘",
+    )
+    st.divider()
     selected_teams = st.multiselect(
         "Search and select teams",
         options=teams,
@@ -174,6 +180,11 @@ st.markdown(
     '<div class="hero-copy">Search a team, narrow the schedule, and explore '
     "the model's predicted winner, win probability, and point spread.</div>",
     unsafe_allow_html=True,
+)
+st.page_link(
+    "pages/How_It_Works.py",
+    label="New here? Read how the model works",
+    icon="📘",
 )
 
 filtered = filter_predictions(
