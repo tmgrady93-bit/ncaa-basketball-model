@@ -15,6 +15,10 @@ The app reads `data/2027_upcoming_predictions.csv` and uses
 Regenerate those exports from the model notebook before refreshing the
 dashboard. Model training is not run while users interact with the app.
 
+The app includes a separate **How It Works** page rendered from
+`docs/model_guide.md`, with plain-language explanations of the model inputs,
+predictions, and backtest metrics.
+
 ## Deploy on Streamlit Community Cloud
 
 1. Push this repository to GitHub.
