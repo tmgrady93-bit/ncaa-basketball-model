@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 from datetime import date
+from html import escape
 from pathlib import Path
 import pandas as pd
 import streamlit as st
 
+from odds_data import normalize_team_name
 from prediction_data import (
     as_export_csv,
     available_teams,
@@ -30,6 +32,60 @@ def format_number(value: object, digits: int = 1, signed: bool = False) -> str:
     if pd.isna(number):
         return "—"
     return f"{number:+.{digits}f}" if signed else f"{number:.{digits}f}"
+
+
+def probability_color(value: object) -> str:
+    try:
+        return "positive" if float(value) >= 50 else "negative"
+    except (TypeError, ValueError):
+        return "neutral"
+
+
+def render_delta(
+    value: object,
+    tooltip: str,
+    *,
+    neutral: bool = False,
+    positive_is_good: bool = True,
+    suffix: str = " pts",
+    threshold: float = 0.0,
+) -> str:
+    try:
+        numeric_value = float(value)
+    except (TypeError, ValueError):
+        numeric_value = 0.0
+    if neutral or numeric_value == 0:
+        color = "neutral"
+    elif (numeric_value >= threshold) == positive_is_good:
+        color = "positive"
+    else:
+        color = "negative"
+    return (
+        '<span class="delta-tooltip ' + color + '" tabindex="0" '
+        'role="note" data-tooltip="' + escape(tooltip, quote=True) + '">'
+        + f"{numeric_value:+.1f}{suffix} <span aria-hidden='true'>ⓘ</span>"
+        + "</span>"
+    )
+
+
+def render_card_metric(
+    column: st.delta_generator.DeltaGenerator,
+    label: str,
+    value: str,
+    tooltip: str,
+    *,
+    value_color: str = "neutral",
+    delta_html: str = "",
+) -> None:
+    column.markdown(
+        '<div class="compact-metric">'
+        f'<div class="metric-tip" tabindex="0" data-tooltip="{escape(tooltip, quote=True)}">'
+        f'{escape(label)} <span aria-hidden="true">ⓘ</span></div>'
+        f'<div class="compact-value {value_color}">{escape(value)}</div>'
+        f'<div class="compact-delta">{delta_html}</div>'
+        "</div>",
+        unsafe_allow_html=True,
+    )
 
 
 st.set_page_config(
@@ -62,6 +118,93 @@ st.markdown(
         }
         [data-testid="stVerticalBlockBorderWrapper"] [data-testid="stMarkdownContainer"] p {
             overflow-wrap: anywhere;
+        }
+        [data-testid="stVerticalBlockBorderWrapper"]:has(.card-state-underdog) {
+            background: linear-gradient(145deg, #ecfdf5 0%, #f0fdf4 100%);
+            border-color: #16a34a;
+        }
+        [data-testid="stVerticalBlockBorderWrapper"]:has(.card-state-fade) {
+            background: linear-gradient(145deg, #fff7f7 0%, #fef2f2 100%);
+            border-color: #dc2626;
+        }
+        .card-state {
+            border-radius: 999px;
+            display: inline-block;
+            font-size: 0.72rem;
+            font-weight: 800;
+            margin-bottom: 0.45rem;
+            padding: 0.25rem 0.55rem;
+        }
+        .card-state-underdog {
+            background: #dcfce7;
+            color: #166534;
+        }
+        .card-state-fade {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        .compact-metric {
+            min-width: 0;
+        }
+        .metric-tip {
+            color: #64748b;
+            font-size: 0.68rem;
+            line-height: 1.15;
+            min-height: 2rem;
+            overflow-wrap: anywhere;
+            position: relative;
+        }
+        .compact-value {
+            font-size: clamp(0.95rem, 1.4vw, 1.22rem);
+            font-weight: 750;
+            line-height: 1.15;
+            overflow-wrap: anywhere;
+        }
+        .positive {
+            color: #15803d;
+        }
+        .negative {
+            color: #b91c1c;
+        }
+        .neutral {
+            color: #0f172a;
+        }
+        .compact-delta {
+            min-height: 1.2rem;
+        }
+        .delta-tooltip {
+            border-radius: 999px;
+            display: inline-block;
+            font-size: 0.7rem;
+            font-weight: 750;
+            position: relative;
+        }
+        .metric-tip::after, .delta-tooltip::after {
+            background: #0f172a;
+            border-radius: 8px;
+            bottom: calc(100% + 0.4rem);
+            color: #fff;
+            content: attr(data-tooltip);
+            font-size: 0.72rem;
+            font-weight: 500;
+            left: 50%;
+            line-height: 1.35;
+            max-width: 14rem;
+            opacity: 0;
+            padding: 0.45rem 0.55rem;
+            pointer-events: none;
+            position: absolute;
+            transform: translateX(-50%);
+            transition: opacity 120ms ease;
+            visibility: hidden;
+            white-space: normal;
+            width: max-content;
+            z-index: 20;
+        }
+        .metric-tip:hover::after, .metric-tip:focus::after,
+        .delta-tooltip:hover::after, .delta-tooltip:focus::after {
+            opacity: 1;
+            visibility: visible;
         }
         .eyebrow {
             color: #d97706;
@@ -312,27 +455,38 @@ metric_columns = st.columns(4)
 metric_columns[0].metric(
     "Model winner picks",
     f"{model_wins}/{scorecard_games}",
-    delta=f"{100 * model_wins / scorecard_games:.1f}%"
-    if scorecard_games
-    else None,
-    delta_color="off",
     help=(
         "The large value is the number of correct model winner picks from "
         "the previous day. The percentage below shows its winner-pick accuracy."
     ),
 )
+if scorecard_games:
+    metric_columns[0].markdown(
+        render_delta(
+            100 * model_wins / scorecard_games,
+            "Winner-pick accuracy: correct model picks divided by scored games.",
+            suffix="%",
+            threshold=50,
+        ),
+        unsafe_allow_html=True,
+    )
 metric_columns[1].metric(
     "DraftKings winner picks",
     f"{market_wins}/{scorecard_games}",
-    delta=f"{model_wins - market_wins:+d} wins vs. market"
-    if scorecard_games
-    else None,
-    delta_color="off",
     help=(
         "The large value is DraftKings' correct favorite picks from the "
         "previous day. The delta compares model wins minus DraftKings wins."
     ),
 )
+if scorecard_games:
+    metric_columns[1].markdown(
+        render_delta(
+            model_wins - market_wins,
+            "Model wins minus DraftKings wins. Positive means the model picked more winners yesterday; negative means DraftKings did.",
+            suffix=" wins",
+        ),
+        unsafe_allow_html=True,
+    )
 metric_columns[2].metric(
     "Model avg. total miss (MAE)",
     f"{benchmarked_yesterday['model_total_error'].mean():.1f} pts"
@@ -391,6 +545,26 @@ for row_start in range(0, len(card_rows), 2):
                     st.info("No complete DraftKings H2H, spread, and total market found.")
                     continue
 
+                model_is_underdog = (
+                    normalize_team_name(game["predicted_team"])
+                    != normalize_team_name(game["market_favorite"])
+                )
+                model_edge = float(game.get("model_win_probability_edge") or 0)
+                if model_is_underdog:
+                    st.markdown(
+                        '<span class="card-state card-state-underdog" '
+                        'title="The model projects a different winner than DraftKings, making the model pick the market underdog.">'
+                        "Model underdog opportunity</span>",
+                        unsafe_allow_html=True,
+                    )
+                elif model_edge < 0:
+                    st.markdown(
+                        '<span class="card-state card-state-fade" '
+                        'title="The model and DraftKings agree on the winner, but the model gives that winner a lower chance than the market implies.">'
+                        "Model below market confidence</span>",
+                        unsafe_allow_html=True,
+                    )
+
                 label, model_column, market_column = st.columns([0.9, 2.1, 2.1])
                 label.markdown("**Market**")
                 model_column.markdown("**Our model**")
@@ -398,70 +572,68 @@ for row_start in range(0, len(card_rows), 2):
 
                 label, model_column, market_column = st.columns([0.9, 2.1, 2.1])
                 label.markdown("**H2H**")
-                model_column.metric(
+                render_card_metric(
+                    model_column,
                     game["predicted_team"],
                     f"{format_number(game['win_pct'])}%",
-                    help=(
-                        "H2H is head-to-head. The model estimates this team's "
-                        "probability of winning the game."
-                    ),
+                    "H2H is head-to-head. The model estimates this team's probability of winning. Values at or above 50% are green; below 50% are red.",
+                    value_color=probability_color(game["win_pct"]),
                 )
-                market_column.metric(
+                render_card_metric(
+                    market_column,
                     game["market_favorite"],
                     f"{format_number(game['market_win_pct'])}%",
-                    delta=(
-                        f"{game['market_win_pct'] - game['win_pct']:+.1f} pts"
-                    ),
-                    delta_color="off",
-                    help=(
-                        "DraftKings' no-vig moneyline probability for its "
-                        "favorite. The delta compares DraftKings' probability "
-                        "with the model's displayed win probability."
+                    "DraftKings' no-vig moneyline probability for its favorite. Values at or above 50% are green; below 50% are red.",
+                    value_color=probability_color(game["market_win_pct"]),
+                    delta_html=render_delta(
+                        model_edge,
+                        "Model probability minus DraftKings' implied probability for the model's selected team. Positive means the model sees more value; negative means less.",
                     ),
                 )
 
                 label, model_column, market_column = st.columns([0.9, 2.1, 2.1])
                 label.markdown("**Spread**")
-                model_column.metric(
+                spread_edge = float(game["market_spread"]) - float(game["point_spread"])
+                render_card_metric(
+                    model_column,
                     game["predicted_team"],
                     f"−{format_number(game['point_spread'])}",
-                    help=(
-                        "The model's expected winning margin for its projected "
-                        "winner. A minus sign indicates the favorite."
-                    ),
+                    "The model's expected winning margin for its projected winner. A minus sign denotes the favorite.",
+                    value_color="neutral",
                 )
-                market_column.metric(
+                render_card_metric(
+                    market_column,
                     game["market_favorite"],
                     f"−{format_number(game['market_spread'])}",
-                    delta=(
-                        f"{game['market_spread'] - game['point_spread']:+.1f} pts"
-                    ),
-                    delta_color="off",
-                    help=(
-                        "DraftKings' spread for its market favorite. The delta "
-                        "shows how this line differs from the model margin."
+                    "DraftKings' spread for its market favorite.",
+                    value_color="neutral",
+                    delta_html=render_delta(
+                        spread_edge,
+                        "DraftKings spread minus the model margin. Positive is red because the market asks for a larger margin; negative is green because the model margin is larger.",
+                        positive_is_good=False,
                     ),
                 )
 
                 label, model_column, market_column = st.columns([0.9, 2.1, 2.1])
                 label.markdown("**Total**")
-                model_column.metric(
+                total_edge = float(game["market_total"]) - float(game["projected_total"])
+                render_card_metric(
+                    model_column,
                     "Combined score",
                     f"{format_number(game['projected_total'])}",
-                    help=(
-                        "The model's estimate of both teams' combined final score."
-                    ),
+                    "The model's estimate of both teams' combined final score.",
+                    value_color="neutral",
                 )
-                market_column.metric(
+                render_card_metric(
+                    market_column,
                     "Combined score",
                     f"{format_number(game['market_total'])}",
-                    delta=(
-                        f"{game['market_total'] - game['projected_total']:+.1f} pts"
-                    ),
-                    delta_color="off",
-                    help=(
-                        "DraftKings' over/under line. The delta compares the "
-                        "market total with the model's projected total."
+                    "DraftKings' over/under line. The delta is directional only and remains black because a higher total is not inherently better.",
+                    value_color="neutral",
+                    delta_html=render_delta(
+                        total_edge,
+                        "DraftKings total minus the model total. Positive means the market total is higher; negative means it is lower. This comparison is informational, not a green/red value signal.",
+                        neutral=True,
                     ),
                 )
 
