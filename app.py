@@ -119,11 +119,11 @@ st.markdown(
         [data-testid="stVerticalBlockBorderWrapper"] [data-testid="stMarkdownContainer"] p {
             overflow-wrap: anywhere;
         }
-        [data-testid="stVerticalBlockBorderWrapper"]:has(.card-state-underdog) {
+        [data-testid="stVerticalBlock"]:has(.card-state-underdog) {
             background: linear-gradient(145deg, #ecfdf5 0%, #f0fdf4 100%);
             border-color: #16a34a;
         }
-        [data-testid="stVerticalBlockBorderWrapper"]:has(.card-state-fade) {
+        [data-testid="stVerticalBlock"]:has(.card-state-fade) {
             background: linear-gradient(145deg, #fff7f7 0%, #fef2f2 100%);
             border-color: #dc2626;
         }
@@ -205,6 +205,79 @@ st.markdown(
         .delta-tooltip:hover::after, .delta-tooltip:focus::after {
             opacity: 1;
             visibility: visible;
+        }
+        @media (max-width: 900px) {
+            .block-container {
+                padding-left: 0.7rem;
+                padding-right: 0.7rem;
+                max-width: 100% !important;
+                min-width: 0 !important;
+                width: 100% !important;
+            }
+            [data-testid="stMainBlockContainer"],
+            [data-testid="stMain"] {
+                max-width: 100% !important;
+                min-width: 0 !important;
+                overflow-x: hidden;
+                width: 100% !important;
+            }
+            [data-testid="stVerticalBlock"]:has(
+                > [data-testid="stElementContainer"] .card-state
+            ) [data-testid="stHorizontalBlock"] {
+                flex-wrap: nowrap !important;
+                gap: 0.3rem;
+                width: 100% !important;
+            }
+            [data-testid="stVerticalBlock"]:has(
+                > [data-testid="stElementContainer"] .card-state
+            ) [data-testid="stHorizontalBlock"] > [data-testid="stColumn"] {
+                min-width: 0 !important;
+            }
+            [data-testid="stVerticalBlock"]:has(
+                > [data-testid="stElementContainer"] .card-state
+            ) {
+                padding: 0.65rem !important;
+            }
+            [data-testid="stVerticalBlock"]:has(.card-state) h3 {
+                font-size: 0.92rem;
+                overflow-wrap: anywhere;
+            }
+            [data-testid="stVerticalBlock"]:has(
+                > [data-testid="stElementContainer"] .card-state
+            ) [data-testid="stHorizontalBlock"]
+            > [data-testid="stColumn"]:first-child {
+                flex: 0.72 1 0 !important;
+            }
+            [data-testid="stVerticalBlock"]:has(
+                > [data-testid="stElementContainer"] .card-state
+            ) [data-testid="stHorizontalBlock"]
+            > [data-testid="stColumn"]:not(:first-child) {
+                flex: 2 1 0 !important;
+            }
+            .compact-value {
+                font-size: 0.92rem;
+            }
+            .metric-tip {
+                font-size: 0.61rem;
+                min-height: 1.8rem;
+            }
+            .delta-tooltip {
+                font-size: 0.62rem;
+            }
+            .card-state {
+                font-size: 0.6rem;
+                line-height: 1.2;
+                white-space: normal;
+            }
+            .metric-tip::after, .delta-tooltip::after {
+                max-width: 10rem;
+                width: 10rem;
+            }
+        }
+        @media (max-width: 600px) {
+            .hero-title {
+                font-size: 2.1rem;
+            }
         }
         .eyebrow {
             color: #d97706;
