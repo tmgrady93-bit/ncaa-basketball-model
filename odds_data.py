@@ -658,9 +658,23 @@ def main() -> None:
             upcoming["game_date"].eq(today)
         ].copy()
         if not next_scorecard_predictions.empty:
-            next_scorecard_predictions.to_csv(
-                args.yesterday_predictions, index=False
+            retained_predictions = pd.concat(
+                [yesterday, next_scorecard_predictions],
+                ignore_index=True,
             )
+            retained_predictions["game_date"] = pd.to_datetime(
+                retained_predictions["game_date"], errors="raise"
+            ).dt.strftime("%Y-%m-%d")
+            retained_predictions = retained_predictions.drop_duplicates(
+                subset=["game_date", "matchup"], keep="last"
+            )
+            retained_dates = pd.to_datetime(
+                retained_predictions["game_date"], errors="raise"
+            ).dt.date
+            retained_predictions = retained_predictions[
+                retained_dates.ge(today - timedelta(days=2))
+            ]
+            retained_predictions.to_csv(args.yesterday_predictions, index=False)
             print(
                 f"Prepared {len(next_scorecard_predictions):,} prediction rows "
                 f"for the {today:%Y-%m-%d} scorecard."
