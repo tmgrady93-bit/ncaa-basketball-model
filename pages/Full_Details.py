@@ -17,6 +17,12 @@ SCHEDULE_PATH = PROJECT_ROOT / "data" / "schedule_2027_upcoming.csv"
 SCORECARD_PATH = PROJECT_ROOT / "data" / "yesterday_model_scorecard.csv"
 
 
+def edge_text_color(value: object) -> str:
+    if pd.isna(value):
+        return ""
+    return "color: #15803d;" if float(value) > 0 else "color: #b91c1c;"
+
+
 st.set_page_config(
     page_title="Grady's Projections | Full Details",
     page_icon="🔎",
@@ -140,15 +146,27 @@ with upcoming_tab:
         "point_spread",
         "market_spread_for_prediction",
         "model_spread_edge",
-        "model_total_edge",
         "projected_total",
         "market_total",
+        "model_total_edge",
     ]
     st.caption(f"{len(upcoming_detail):,} rows")
-    st.dataframe(
-        upcoming_detail[
-            [column for column in upcoming_columns if column in upcoming_detail]
+    upcoming_table = upcoming_detail[
+        [column for column in upcoming_columns if column in upcoming_detail]
+    ].style.map(
+        edge_text_color,
+        subset=[
+            column
+            for column in (
+                "model_win_probability_edge",
+                "model_spread_edge",
+                "model_total_edge",
+            )
+            if column in upcoming_detail
         ],
+    )
+    st.dataframe(
+        upcoming_table,
         hide_index=True,
         use_container_width=True,
         column_config={
