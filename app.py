@@ -88,7 +88,7 @@ def render_card_metric(
 
 
 st.set_page_config(
-    page_title="College Basketball Win Projections",
+    page_title="Grady's Projections",
     page_icon="🏀",
     layout="wide",
 )
@@ -463,7 +463,7 @@ with st.sidebar:
 
 st.markdown('<div class="eyebrow">2026–27 season</div>', unsafe_allow_html=True)
 st.markdown(
-    '<div class="hero-title">College basketball, projected.</div>',
+    '<div class="hero-title">Grady\'s projections</div>',
     unsafe_allow_html=True,
 )
 st.markdown(
