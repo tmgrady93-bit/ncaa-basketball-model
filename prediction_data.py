@@ -15,6 +15,16 @@ REQUIRED_COLUMNS = {
     "predicted_team",
     "win_pct",
     "point_spread",
+    "projected_total",
+}
+SCORECARD_COLUMNS = {
+    "game_date",
+    "matchup",
+    "predicted_team",
+    "model_correct",
+    "market_correct",
+    "model_total_error",
+    "market_total_error",
 }
 
 
@@ -103,6 +113,18 @@ def load_predictions(path: Path, schedule_path: Path | None = None) -> pd.DataFr
     predictions["point_spread"] = pd.to_numeric(
         predictions["point_spread"], errors="raise"
     )
+    predictions["projected_total"] = pd.to_numeric(
+        predictions["projected_total"], errors="raise"
+    )
+    for column in (
+        "market_win_pct",
+        "market_spread",
+        "market_total",
+        "over_price",
+        "under_price",
+    ):
+        if column in predictions:
+            predictions[column] = pd.to_numeric(predictions[column], errors="coerce")
     return predictions.sort_values(
         ["tipoff_datetime", "matchup"], na_position="last"
     ).reset_index(drop=True)
@@ -173,8 +195,45 @@ def as_export_csv(predictions: pd.DataFrame) -> bytes:
         "predicted_team",
         "win_pct",
         "point_spread",
+        "projected_total",
     ]
+    benchmark_columns = [
+        "market_favorite",
+        "market_win_pct",
+        "market_spread",
+        "market_total",
+        "model_win_probability_edge",
+        "model_total_edge",
+    ]
+    columns.extend(
+        column for column in benchmark_columns if column in predictions.columns
+    )
     return predictions[columns].to_csv(index=False).encode("utf-8")
+
+
+def load_yesterday_scorecard(path: Path) -> pd.DataFrame:
+    if not path.is_file():
+        raise FileNotFoundError(
+            f"Prior-day scorecard not found at {path}. Run the model notebook to "
+            "refresh benchmark data."
+        )
+    scorecard = pd.read_csv(path)
+    missing_columns = SCORECARD_COLUMNS.difference(scorecard.columns)
+    if missing_columns:
+        missing = ", ".join(sorted(missing_columns))
+        raise ValueError(f"Prior-day scorecard is missing required columns: {missing}")
+
+    scorecard["game_date"] = pd.to_datetime(
+        scorecard["game_date"], format="%Y-%m-%d", errors="raise"
+    ).dt.date
+    for column in ("model_correct", "market_correct"):
+        values = scorecard[column].astype(str).str.lower().map(
+            {"true": True, "false": False}
+        )
+        scorecard[column] = values
+    for column in ("model_total_error", "market_total_error"):
+        scorecard[column] = pd.to_numeric(scorecard[column], errors="coerce")
+    return scorecard
 
 
 def data_as_of(path: Path) -> datetime:

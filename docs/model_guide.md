@@ -12,11 +12,12 @@ For every team, the model looks at recent game performance and asks:
 2. How strong were its recent opponents?
 3. Is the team playing at home, away, or at a neutral site?
 
-Those inputs produce two results:
+Those inputs produce three results:
 
 - **Win probability:** the estimated chance that the displayed team wins.
 - **Projected margin:** the estimated number of points by which the displayed
   winner may finish ahead.
+- **Projected total:** the estimated combined score for both teams.
 
 ### Example
 
@@ -65,11 +66,24 @@ games, that home-court input is removed.
 ## How the numbers are produced
 
 One statistical model estimates win probability. A second, separate model
-estimates the expected point margin. Both are trained on completed SportsDataverse
-NCAA games and use the strength edge described above.
+estimates the expected point margin. A third model estimates total points from
+each team's recent scoring and points allowed. All are trained on completed
+SportsDataverse NCAA games without using the current game's result as an input.
 
 The model is trained again as newer completed games become available. It does
 not make a prediction by simply matching team names or copying betting odds.
+
+## DraftKings benchmark
+
+The dashboard places the model's prediction beside the current DraftKings
+moneyline favorite, spread, and total when a market match is available.
+Moneyline prices are converted to no-vig implied probabilities before the
+model edge is shown. Missing markets are labeled rather than treated as zero.
+
+The scorecard at the top compares winner picks and total-point error for the
+model and DraftKings on the latest date represented in the completed game
+data. When the data feed is behind, the displayed scorecard date makes that
+lag explicit.
 
 ## How successful have the predictions been?
 

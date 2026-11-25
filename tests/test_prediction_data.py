@@ -7,6 +7,7 @@ from prediction_data import (
     available_teams,
     filter_predictions,
     load_predictions,
+    load_yesterday_scorecard,
     split_matchup,
 )
 
@@ -22,6 +23,7 @@ def sample_predictions() -> pd.DataFrame:
             "predicted_team": ["Beta", "Gamma"],
             "win_pct": [72.5, 54.0],
             "point_spread": [6.5, 1.0],
+            "projected_total": [151.5, 142.0],
         }
     )
 
@@ -86,6 +88,7 @@ def test_load_predictions_uses_canonical_schedule_names(tmp_path) -> None:
             "predicted_team": ["UNLV"],
             "win_pct": [60.0],
             "point_spread": [2.5],
+            "projected_total": [148.5],
         }
     ).to_csv(prediction_file, index=False)
     schedule_file = tmp_path / "schedule.csv"
@@ -104,3 +107,24 @@ def test_load_predictions_uses_canonical_schedule_names(tmp_path) -> None:
 
     assert predictions.loc[0, "team_1"] == "Eastern Wash."
     assert predictions.loc[0, "team_2"] == "UNLV"
+    assert predictions.loc[0, "projected_total"] == 148.5
+
+
+def test_load_yesterday_scorecard_parses_results(tmp_path) -> None:
+    scorecard_file = tmp_path / "scorecard.csv"
+    pd.DataFrame(
+        {
+            "game_date": ["2026-11-23"],
+            "matchup": ["Alpha @ Beta"],
+            "predicted_team": ["Beta"],
+            "model_correct": [True],
+            "market_correct": [False],
+            "model_total_error": [4.5],
+            "market_total_error": [8.0],
+        }
+    ).to_csv(scorecard_file, index=False)
+
+    scorecard = load_yesterday_scorecard(scorecard_file)
+
+    assert scorecard.loc[0, "model_correct"]
+    assert not scorecard.loc[0, "market_correct"]

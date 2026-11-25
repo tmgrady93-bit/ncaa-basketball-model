@@ -20,4 +20,5 @@ possessions_log.txt
 
 # Streamlit only needs these generated exports.
 !data/2027_upcoming_predictions.csv
+!data/2027_upcoming_with_benchmarks.csv
 !data/schedule_2027_upcoming.csv

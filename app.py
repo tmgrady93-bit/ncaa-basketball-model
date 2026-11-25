@@ -13,11 +13,25 @@ from prediction_data import (
     data_as_of,
     filter_predictions,
     load_predictions,
+    load_yesterday_scorecard,
 )
 
 PROJECT_ROOT = Path(__file__).resolve().parent
-PREDICTIONS_PATH = PROJECT_ROOT / "data" / "2027_upcoming_predictions.csv"
+PREDICTIONS_PATH = (
+    PROJECT_ROOT / "data" / "2027_upcoming_with_benchmarks.csv"
+)
 SCHEDULE_PATH = PROJECT_ROOT / "data" / "schedule_2027_upcoming.csv"
+YESTERDAY_PATH = PROJECT_ROOT / "data" / "yesterday_model_scorecard.csv"
+
+
+def format_number(value: object, digits: int = 1, signed: bool = False) -> str:
+    try:
+        number = float(value)
+    except (TypeError, ValueError):
+        return "—"
+    if pd.isna(number):
+        return "—"
+    return f"{number:+.{digits}f}" if signed else f"{number:.{digits}f}"
 
 
 st.set_page_config(
@@ -59,7 +73,7 @@ st.markdown(
             border-radius: 18px;
             box-shadow: 0 8px 24px rgba(15, 23, 42, 0.07);
             padding: 1.1rem 1.15rem;
-            min-height: 220px;
+            min-height: 330px;
         }
         .matchup-card-date {
             color: #64748b;
@@ -76,6 +90,32 @@ st.markdown(
             color: #0f766e;
             font-size: 1.45rem;
             font-weight: 800;
+        }
+        .benchmark-grid {
+            border-top: 1px solid #e2e8f0;
+            display: grid;
+            gap: 0.65rem;
+            grid-template-columns: 1fr 1fr;
+            margin-top: 0.95rem;
+            padding-top: 0.8rem;
+        }
+        .benchmark-panel {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 0.7rem;
+        }
+        .benchmark-label {
+            color: #64748b;
+            font-size: 0.7rem;
+            font-weight: 800;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+        .benchmark-value {
+            color: #0f172a;
+            font-size: 1rem;
+            font-weight: 750;
+            margin-top: 0.2rem;
         }
         .card-detail {
             color: #475569;
@@ -107,6 +147,12 @@ def get_predictions(
     return load_predictions(path, schedule_path)
 
 
+@st.cache_data(show_spinner=False)
+def get_yesterday_scorecard(path: Path, modified_at: float) -> pd.DataFrame:
+    del modified_at
+    return load_yesterday_scorecard(path)
+
+
 try:
     predictions = get_predictions(
         PREDICTIONS_PATH,
@@ -114,8 +160,15 @@ try:
         PREDICTIONS_PATH.stat().st_mtime,
         SCHEDULE_PATH.stat().st_mtime,
     )
+    yesterday = get_yesterday_scorecard(
+        YESTERDAY_PATH, YESTERDAY_PATH.stat().st_mtime
+    )
 except (FileNotFoundError, ValueError, pd.errors.ParserError) as error:
     st.error(str(error))
+    st.stop()
+
+if yesterday.empty:
+    st.warning("No completed scorecard data is available yet.")
     st.stop()
 
 
@@ -161,12 +214,18 @@ with st.sidebar:
         "Venue type",
         options=["All games", "Neutral-site only", "Non-neutral only"],
     )
+    benchmark_only = st.checkbox(
+        "DraftKings benchmark available",
+        value=True,
+        help="Keep enabled to show only games with current DraftKings markets.",
+    )
     sort_by = st.selectbox(
         "Sort results by",
         options=[
             "Tip-off time",
             "Highest win probability",
             "Largest projected spread",
+            "Largest model edge",
             "Team name",
         ],
     )
@@ -178,7 +237,7 @@ st.markdown(
 )
 st.markdown(
     '<div class="hero-copy">Search a team, narrow the schedule, and explore '
-    "the model's predicted winner, win probability, and point spread.</div>",
+    "the model's projections, with DraftKings as the side-by-side benchmark.</div>",
     unsafe_allow_html=True,
 )
 st.page_link(
@@ -195,31 +254,68 @@ filtered = filter_predictions(
     min_confidence=float(min_confidence),
     neutral_filter=neutral_filter,
 )
+if benchmark_only:
+    filtered = filtered[filtered["market_favorite"].notna()]
 
 if sort_by == "Highest win probability":
     filtered = filtered.sort_values("win_pct", ascending=False)
 elif sort_by == "Largest projected spread":
     filtered = filtered.sort_values("point_spread", ascending=False)
+elif sort_by == "Largest model edge":
+    filtered = filtered.sort_values(
+        "model_win_probability_edge", ascending=False, na_position="last"
+    )
 elif sort_by == "Team name":
     filtered = filtered.sort_values(["team_1", "team_2"])
 else:
     filtered = filtered.sort_values("tipoff_datetime")
 
+st.subheader(
+    f"Latest completed scorecard · {yesterday['game_date'].iloc[0]:%b %d, %Y}"
+)
+benchmarked_yesterday = yesterday[
+    yesterday["market_favorite"].notna()
+] if "market_favorite" in yesterday else yesterday.iloc[0:0]
+model_wins = int(
+    benchmarked_yesterday["model_correct"].fillna(False).sum()
+)
+market_wins = int(
+    benchmarked_yesterday["market_correct"].fillna(False).sum()
+)
+scorecard_games = len(benchmarked_yesterday)
 metric_columns = st.columns(4)
-metric_columns[0].metric("Matching games", f"{len(filtered):,}")
-metric_columns[1].metric("Teams available", f"{len(teams):,}")
+metric_columns[0].metric(
+    "Model winner picks",
+    f"{model_wins}/{scorecard_games}",
+    delta=f"{100 * model_wins / scorecard_games:.1f}%"
+    if scorecard_games
+    else None,
+)
+metric_columns[1].metric(
+    "DraftKings winner picks",
+    f"{market_wins}/{scorecard_games}",
+    delta=f"{model_wins - market_wins:+d} wins vs. market"
+    if scorecard_games
+    else None,
+)
 metric_columns[2].metric(
-    "Average win chance",
-    f"{filtered['win_pct'].mean():.1f}%" if not filtered.empty else "—",
+    "Model total MAE",
+    f"{benchmarked_yesterday['model_total_error'].mean():.1f} pts"
+    if not benchmarked_yesterday.empty
+    else "—",
 )
 metric_columns[3].metric(
-    "Neutral-site games",
-    f"{int(filtered['neutral_site'].sum()):,}" if not filtered.empty else "0",
+    "DraftKings total MAE",
+    f"{benchmarked_yesterday['market_total_error'].mean():.1f} pts"
+    if not benchmarked_yesterday.empty
+    else "—",
 )
 
 st.caption(
-    f"Data export updated {data_as_of(PREDICTIONS_PATH):%B %d, %Y at %I:%M %p}. "
-    "Times are shown as provided in the source schedule."
+    f"Upcoming benchmarks refreshed {data_as_of(PREDICTIONS_PATH):%B %d, %Y} at "
+    f"{data_as_of(PREDICTIONS_PATH):%I:%M %p}. "
+    f"{len(filtered):,} games match the current filters. "
+    "The scorecard uses the latest date available in the completed game data."
 )
 
 if filtered.empty:
@@ -241,6 +337,40 @@ for row_start in range(0, len(card_rows), 3):
                 if game["neutral_site"]
                 else ""
             )
+            has_benchmark = bool(pd.notna(game.get("market_favorite")))
+            if has_benchmark:
+                market_probability = format_number(
+                    game.get("market_win_pct_for_prediction")
+                )
+                benchmark_html = f"""
+                    <div class="benchmark-panel">
+                        <div class="benchmark-label">DraftKings</div>
+                        <div class="benchmark-value">{game['market_favorite']}</div>
+                        <div class="card-detail">
+                            {format_number(game['market_win_pct'])}% favorite
+                            · spread {format_number(game['market_spread'])}
+                            · total {format_number(game['market_total'])}
+                        </div>
+                    </div>
+                    <div class="benchmark-panel">
+                        <div class="benchmark-label">Model edge</div>
+                        <div class="benchmark-value">
+                            {format_number(game['model_win_probability_edge'], signed=True)}%
+                        </div>
+                        <div class="card-detail">
+                            DraftKings gives the model pick {market_probability}%
+                            · model total edge
+                            {format_number(game['model_total_edge'], signed=True)}
+                        </div>
+                    </div>
+                """
+            else:
+                benchmark_html = """
+                    <div class="benchmark-panel" style="grid-column: 1 / -1;">
+                        <div class="benchmark-label">DraftKings</div>
+                        <div class="card-detail">No current benchmark market found.</div>
+                    </div>
+                """
             st.markdown(
                 f"""
                 <div class="matchup-card">
@@ -248,52 +378,20 @@ for row_start in range(0, len(card_rows), 3):
                     <div class="matchup-card-title">{game["matchup"]}</div>
                     <div class="card-detail">{game["venue"]}</div>
                     <div style="margin-top: 1rem;">
+                        <div class="benchmark-label">Model projection</div>
                         <div class="winner">{game["predicted_team"]} {game["win_pct"]:.1f}%</div>
                         <div class="card-detail">
-                            {confidence_label(game["win_pct"])} · Projected margin {game["point_spread"]:.1f}
+                            {confidence_label(game["win_pct"])} · margin {game["point_spread"]:.1f}
+                            · total {game["projected_total"]:.1f}
                         </div>
                     </div>
+                    <div class="benchmark-grid">{benchmark_html}</div>
                     <div style="margin-top: 0.65rem;">{neutral_badge}</div>
                 </div>
                 """,
                 unsafe_allow_html=True,
             )
             st.progress(int(game["win_pct"]), text=f"{game['win_pct']:.1f}% model win chance")
-
-st.subheader("All matching games")
-table = filtered[
-    [
-        "game_date",
-        "game_time",
-        "matchup",
-        "venue",
-        "neutral_site",
-        "predicted_team",
-        "win_pct",
-        "point_spread",
-    ]
-].rename(
-    columns={
-        "game_date": "Date",
-        "game_time": "Time",
-        "matchup": "Matchup",
-        "venue": "Venue",
-        "neutral_site": "Neutral",
-        "predicted_team": "Predicted winner",
-        "win_pct": "Win probability",
-        "point_spread": "Projected margin",
-    }
-)
-st.dataframe(
-    table,
-    hide_index=True,
-    use_container_width=True,
-    column_config={
-        "Date": st.column_config.DateColumn(format="MMM D, YYYY"),
-        "Win probability": st.column_config.NumberColumn(format="%.1f%%"),
-        "Projected margin": st.column_config.NumberColumn(format="%.1f pts"),
-    },
-)
 
 st.download_button(
     "Download filtered results",
@@ -304,5 +402,6 @@ st.download_button(
 
 st.caption(
     "Model outputs are estimates for exploration, not guarantees or betting advice. "
-    "The projected margin belongs to the displayed predicted winner."
+    "The projected margin belongs to the displayed predicted winner, and the "
+    "projected total estimates both teams' combined points."
 )
