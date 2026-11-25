@@ -515,127 +515,61 @@ else:
 st.subheader(
     f"Yesterday's scorecard · {yesterday['game_date'].iloc[0]:%b %d, %Y}"
 )
-scorecard_view = st.selectbox(
-    "Scorecard market",
-    options=["H2H", "Spread", "Total"],
-    index=0,
-    help="Choose the market used for the previous-day success summary.",
-)
 benchmarked_yesterday = yesterday[
     yesterday["market_favorite"].notna()
 ] if "market_favorite" in yesterday else yesterday.iloc[0:0]
-if scorecard_view == "Spread":
-    spread_ties = int(
-        benchmarked_yesterday["spread_tie"].fillna(False).sum()
-    )
-    benchmarked_yesterday = benchmarked_yesterday[
-        benchmarked_yesterday["market_spread"].notna()
-    ]
-elif scorecard_view == "Total":
-    benchmarked_yesterday = benchmarked_yesterday[
-        benchmarked_yesterday["market_total"].notna()
-    ]
-model_wins = int(
-    benchmarked_yesterday["model_correct"].fillna(False).sum()
-)
-market_wins = int(
-    benchmarked_yesterday["market_correct"].fillna(False).sum()
-)
-scorecard_games = len(benchmarked_yesterday)
-if scorecard_view == "Spread":
-    scorecard_model_success = int(
-        benchmarked_yesterday["model_spread_correct"].fillna(False).sum()
-    )
-    scorecard_market_success = int(
-        benchmarked_yesterday["market_spread_correct"].fillna(False).sum()
-    )
-    model_success_label = "Model spread closer"
-    market_success_label = "DraftKings spread closer"
-    success_help = (
-        "Spread success means the projection was closer to the actual final "
-        "margin from DraftKings' favorite's perspective. "
-        f"Ties: {spread_ties}."
-    )
-elif scorecard_view == "Total":
-    total_ties = int(
-        benchmarked_yesterday["total_tie"].fillna(False).sum()
-    )
-    scorecard_model_success = int(
-        benchmarked_yesterday["model_total_correct"].fillna(False).sum()
-    )
-    scorecard_market_success = int(
-        benchmarked_yesterday["market_total_correct"].fillna(False).sum()
-    )
-    model_success_label = "Model total closer"
-    market_success_label = "DraftKings total closer"
-    success_help = (
-        "Total success means the projection was closer to the actual combined "
-        f"score. Ties: {total_ties}."
-    )
-else:
-    scorecard_model_success = model_wins
-    scorecard_market_success = market_wins
-    model_success_label = "Model winner picks"
-    market_success_label = "DraftKings winner picks"
-    success_help = (
-        "H2H success grades each model pick and the DraftKings favorite as "
-        "correct when that team wins the game."
-    )
-metric_columns = st.columns(4)
-metric_columns[0].metric(
-    model_success_label,
-    f"{scorecard_model_success}/{scorecard_games}",
-    help=(
-        "The number of successful model projections for the selected market. "
-        + success_help
+benchmark_games = len(benchmarked_yesterday)
+spread_games = benchmarked_yesterday[
+    benchmarked_yesterday["market_spread"].notna()
+]
+total_games = benchmarked_yesterday[
+    benchmarked_yesterday["market_total"].notna()
+]
+
+summary_markets = [
+    (
+        "H2H",
+        int(benchmarked_yesterday["model_correct"].fillna(False).sum()),
+        int(benchmarked_yesterday["market_correct"].fillna(False).sum()),
+        benchmark_games,
+        "Correct game-winner picks.",
     ),
-)
-if scorecard_games:
-    metric_columns[0].markdown(
-        render_delta(
-            100 * scorecard_model_success / scorecard_games,
-            f"{scorecard_view} success rate for the model.",
-            suffix="%",
-            threshold=50,
-        ),
-        unsafe_allow_html=True,
-    )
-metric_columns[1].metric(
-    market_success_label,
-    f"{scorecard_market_success}/{scorecard_games}"
-    if scorecard_market_success is not None
-    else "DraftKings line",
-    help=(
-        "Benchmark performance for the selected market. " + success_help
+    (
+        "Spread",
+        int(spread_games["model_spread_correct"].fillna(False).sum()),
+        int(spread_games["market_spread_correct"].fillna(False).sum()),
+        len(spread_games),
+        f"Closer to the final margin. Ties: {int(spread_games['spread_tie'].fillna(False).sum())}.",
     ),
-)
-if scorecard_games and scorecard_market_success is not None:
-    metric_columns[1].markdown(
-        render_delta(
-            scorecard_model_success - scorecard_market_success,
-            "Model successes minus benchmark successes. Positive favors the model; negative favors the benchmark.",
-            suffix=" picks",
-        ),
-        unsafe_allow_html=True,
-    )
-metric_columns[2].metric(
-    "Model avg. total miss (MAE)",
-    f"{benchmarked_yesterday['model_total_error'].mean():.1f} pts"
-    if not benchmarked_yesterday.empty
-    else "—",
-    help="MAE means mean absolute error: the average number of points the projected total missed the final total. Lower is better.",
-)
-metric_columns[3].metric(
-    "DraftKings avg. total miss (MAE)",
-    f"{benchmarked_yesterday['market_total_error'].mean():.1f} pts"
-    if not benchmarked_yesterday.empty
-    else "—",
-    help="MAE means mean absolute error: the average number of points the DraftKings total missed the final total. Lower is better.",
-)
-st.caption(
-    "MAE = mean absolute error, or average points missed. A lower total MAE is better."
-)
-st.caption(success_help)
+    (
+        "Total",
+        int(total_games["model_total_correct"].fillna(False).sum()),
+        int(total_games["market_total_correct"].fillna(False).sum()),
+        len(total_games),
+        f"Closer to the final combined score. Ties: {int(total_games['total_tie'].fillna(False).sum())}.",
+    ),
+]
+
+for column, (
+    market,
+    model_successes,
+    market_successes,
+    market_games,
+    tooltip,
+) in zip(st.columns(3), summary_markets):
+    with column:
+        st.markdown(f"### {market}")
+        model_side, market_side = st.columns(2)
+        model_side.metric(
+            "Model",
+            f"{model_successes}/{market_games}",
+            help=tooltip,
+        )
+        market_side.metric(
+            "DraftKings",
+            f"{market_successes}/{market_games}",
+            help=tooltip,
+        )
 
 st.caption(
     f"Upcoming benchmarks refreshed {data_as_of(PREDICTIONS_PATH):%B %d, %Y} at "
