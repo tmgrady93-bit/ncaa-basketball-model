@@ -45,6 +45,24 @@ st.markdown(
             padding-top: 2rem;
             padding-bottom: 3rem;
         }
+        [data-testid="stVerticalBlockBorderWrapper"] h3 {
+            font-size: 1.05rem;
+            line-height: 1.2;
+        }
+        [data-testid="stVerticalBlockBorderWrapper"] [data-testid="stMetricLabel"] {
+            font-size: 0.72rem;
+            line-height: 1.2;
+            min-height: 2.1rem;
+            overflow-wrap: anywhere;
+            white-space: normal;
+        }
+        [data-testid="stVerticalBlockBorderWrapper"] [data-testid="stMetricValue"] {
+            font-size: clamp(0.95rem, 1.4vw, 1.25rem);
+            overflow-wrap: anywhere;
+        }
+        [data-testid="stVerticalBlockBorderWrapper"] [data-testid="stMarkdownContainer"] p {
+            overflow-wrap: anywhere;
+        }
         .eyebrow {
             color: #d97706;
             font-size: 0.78rem;
@@ -335,8 +353,8 @@ st.caption(
     "and totals are the projected combined score."
 )
 card_rows = filtered.head(6).to_dict("records")
-for row_start in range(0, len(card_rows), 3):
-    for column, game in zip(st.columns(3), card_rows[row_start : row_start + 3]):
+for row_start in range(0, len(card_rows), 2):
+    for column, game in zip(st.columns(2), card_rows[row_start : row_start + 2]):
         with column:
             game_date = (
                 game["game_date"].strftime("%a, %b %d")
@@ -358,12 +376,12 @@ for row_start in range(0, len(card_rows), 3):
                     st.info("No complete DraftKings H2H, spread, and total market found.")
                     continue
 
-                label, model_column, market_column = st.columns([1, 2, 2])
+                label, model_column, market_column = st.columns([0.9, 2.1, 2.1])
                 label.markdown("**Market**")
                 model_column.markdown("**Our model**")
                 market_column.markdown("**DraftKings**")
 
-                label, model_column, market_column = st.columns([1, 2, 2])
+                label, model_column, market_column = st.columns([0.9, 2.1, 2.1])
                 label.markdown("**H2H**")
                 model_column.metric(
                     game["predicted_team"],
@@ -374,7 +392,7 @@ for row_start in range(0, len(card_rows), 3):
                     f"{format_number(game['market_win_pct'])}%",
                 )
 
-                label, model_column, market_column = st.columns([1, 2, 2])
+                label, model_column, market_column = st.columns([0.9, 2.1, 2.1])
                 label.markdown("**Spread**")
                 model_column.metric(
                     game["predicted_team"],
@@ -385,7 +403,7 @@ for row_start in range(0, len(card_rows), 3):
                     f"−{format_number(game['market_spread'])}",
                 )
 
-                label, model_column, market_column = st.columns([1, 2, 2])
+                label, model_column, market_column = st.columns([0.9, 2.1, 2.1])
                 label.markdown("**Total**")
                 model_column.metric(
                     "Combined score",
