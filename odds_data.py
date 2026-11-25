@@ -456,6 +456,8 @@ def match_predictions_to_odds(
         "event_id",
         "commence_time",
         "bookmaker",
+        "home",
+        "away",
         "market_favorite",
         "market_win_pct",
         "market_spread",
@@ -467,11 +469,50 @@ def match_predictions_to_odds(
     matched_rows = []
     for index in matches:
         if index is None:
-            matched_rows.append({column: None for column in available_columns})
+            matched_rows.append(
+                {
+                    ("market_" + column if column in {"home", "away"} else column): None
+                    for column in available_columns
+                }
+            )
         else:
-            matched_rows.append(benchmark.loc[index, available_columns].to_dict())
+            benchmark_row = benchmark.loc[index, available_columns].to_dict()
+            matched_rows.append(
+                {
+                    ("market_" + key if key in {"home", "away"} else key): value
+                    for key, value in benchmark_row.items()
+                }
+            )
     market_values = pd.DataFrame(matched_rows, index=model.index)
     matched = pd.concat([model, market_values], axis=1)
+    matched["model_team_1"] = matched["team_1"]
+    matched["model_team_2"] = matched["team_2"]
+    matched["model_predicted_team"] = matched["predicted_team"]
+
+    def draftkings_name(row: pd.Series, model_name: Any) -> Any:
+        if pd.isna(row.get("event_id")):
+            return model_name
+        if same_team(model_name, row.get("market_home")):
+            return row["market_home"]
+        if same_team(model_name, row.get("market_away")):
+            return row["market_away"]
+        return model_name
+
+    matched["team_1_display"] = matched.apply(
+        lambda row: draftkings_name(row, row["team_1"]), axis=1
+    )
+    matched["team_2_display"] = matched.apply(
+        lambda row: draftkings_name(row, row["team_2"]), axis=1
+    )
+    matched["predicted_team_display"] = matched.apply(
+        lambda row: draftkings_name(row, row["predicted_team"]), axis=1
+    )
+    separator = pd.Series(" vs. ", index=model.index).where(
+        ~model["matchup"].str.contains(" @ ", regex=False, na=False), " @ "
+    )
+    matched["matchup_display"] = (
+        matched["team_1_display"] + separator + matched["team_2_display"]
+    )
     matched["market_win_pct_for_prediction"] = matched.apply(
         lambda row: (
             row["market_win_pct"]

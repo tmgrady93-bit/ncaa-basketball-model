@@ -110,6 +110,10 @@ def test_match_predictions_uses_eastern_game_date() -> None:
     matched = match_predictions_to_odds(predictions, odds)
 
     assert matched.loc[0, "event_id"] == "event-1"
+    assert matched.loc[0, "predicted_team"] == "Beta"
+    assert matched.loc[0, "predicted_team_display"] == "Beta Wildcats"
+    assert matched.loc[0, "matchup_display"] == "Alpha @ Beta Wildcats"
+    assert matched.loc[0, "model_predicted_team"] == "Beta"
     assert matched.loc[0, "market_win_pct_for_prediction"] > 60
     assert matched.loc[0, "model_total_edge"] == 4.5
 
@@ -163,6 +167,7 @@ def test_match_predictions_repairs_blank_team_columns() -> None:
 
     assert matched.loc[0, "team_1"] == "Alpha"
     assert matched.loc[0, "team_2"] == "Beta"
+    assert matched.loc[0, "team_2_display"] == "Beta Wildcats"
     assert matched.loc[0, "event_id"] == "event-1"
 
 

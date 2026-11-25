@@ -101,6 +101,17 @@ def load_predictions(path: Path, schedule_path: Path | None = None) -> pd.DataFr
         predictions = predictions.drop(
             columns=["_merge", "team_1_canonical", "team_2_canonical"]
         )
+    for display_column, target_column in (
+        ("matchup_display", "matchup"),
+        ("team_1_display", "team_1"),
+        ("team_2_display", "team_2"),
+        ("predicted_team_display", "predicted_team"),
+    ):
+        if display_column in predictions:
+            predictions[display_column] = predictions[display_column].where(
+                predictions[display_column].notna(), predictions[target_column]
+            )
+            predictions[target_column] = predictions[display_column]
     predictions["game_date"] = pd.to_datetime(
         predictions["game_date"], format="%Y-%m-%d", errors="raise"
     ).dt.date
