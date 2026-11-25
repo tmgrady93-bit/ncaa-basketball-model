@@ -388,6 +388,10 @@ def _team_similarity(first: Any, second: Any) -> float:
     return SequenceMatcher(None, first_normalized, second_normalized).ratio()
 
 
+def same_team(first: Any, second: Any, threshold: float = 0.8) -> bool:
+    return _team_similarity(first, second) >= threshold
+
+
 def match_predictions_to_odds(
     predictions: pd.DataFrame,
     odds: pd.DataFrame,
@@ -500,13 +504,13 @@ def score_yesterday(
         lambda row: row["home"] if row["home_score"] > row["away_score"] else row["away"],
         axis=1,
     )
-    scored["model_correct"] = (
-        scored["predicted_team"].map(normalize_team_name)
-        == scored["actual_winner"].map(normalize_team_name)
+    scored["model_correct"] = scored.apply(
+        lambda row: same_team(row["predicted_team"], row["actual_winner"]),
+        axis=1,
     )
-    scored["market_correct"] = (
-        scored["market_favorite"].map(normalize_team_name)
-        == scored["actual_winner"].map(normalize_team_name)
+    scored["market_correct"] = scored.apply(
+        lambda row: same_team(row["market_favorite"], row["actual_winner"]),
+        axis=1,
     )
     scored["actual_total"] = scored["home_score"] + scored["away_score"]
     scored["model_total_error"] = (
@@ -581,13 +585,13 @@ def score_model_history(
 
     actuals = pd.DataFrame(matched_scores, index=scored.index)
     scored = pd.concat([scored, actuals], axis=1)
-    scored["model_correct"] = (
-        scored["predicted_team"].map(normalize_team_name)
-        == scored["actual_winner"].map(normalize_team_name)
+    scored["model_correct"] = scored.apply(
+        lambda row: same_team(row["predicted_team"], row["actual_winner"]),
+        axis=1,
     )
-    scored["market_correct"] = (
-        scored["market_favorite"].map(normalize_team_name)
-        == scored["actual_winner"].map(normalize_team_name)
+    scored["market_correct"] = scored.apply(
+        lambda row: same_team(row["market_favorite"], row["actual_winner"]),
+        axis=1,
     )
     scored["actual_total"] = scored["home_score"] + scored["away_score"]
     scored["model_total_error"] = (

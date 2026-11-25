@@ -8,6 +8,7 @@ from odds_data import (
     match_predictions_to_odds,
     score_yesterday,
     summarize_odds_snapshot,
+    same_team,
     split_model_matchup,
 )
 
@@ -79,6 +80,8 @@ def test_format_snapshot_timestamp_uses_midnight_utc() -> None:
     assert isinstance(local_today(), date)
     assert split_model_matchup("Alpha vs. Beta") == ("Alpha", "Beta")
     assert split_model_matchup("Alpha @ Beta") == ("Alpha", "Beta")
+    assert same_team("St. Bonaventure", "St. Bonaventure Bonnies")
+    assert same_team("Weber St.", "Weber State Wildcats")
 
 
 def test_summarize_odds_snapshot_builds_game_benchmark() -> None:
