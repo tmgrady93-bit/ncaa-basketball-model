@@ -598,54 +598,6 @@ def score_model_history(
         scored["home_score"] - scored["away_score"]
     ).abs()
 
-    def covered_projected_spread(row: pd.Series) -> bool:
-        if pd.isna(row["actual_margin"]) or pd.isna(row["market_spread"]):
-            return False
-        market_spread = abs(float(row["market_spread"]))
-        backed_market_favorite = (
-            same_team(row["predicted_team"], row["market_favorite"])
-            and float(row["point_spread"]) > market_spread
-        )
-        market_favorite_won = same_team(
-            row["market_favorite"], row["actual_winner"]
-        )
-        if row["actual_margin"] == market_spread:
-            return False
-        market_favorite_covered = (
-            market_favorite_won and row["actual_margin"] > market_spread
-        )
-        return (
-            market_favorite_covered
-            if backed_market_favorite
-            else not market_favorite_covered
-        )
-
-    def covered_market_spread(row: pd.Series) -> bool:
-        if pd.isna(row["market_spread"]) or pd.isna(row["actual_margin"]):
-            return False
-        favorite_won = same_team(row["market_favorite"], row["actual_winner"])
-        return (
-            favorite_won
-            and row["actual_margin"] > abs(row["market_spread"])
-        )
-
-    scored["model_spread_correct"] = scored.apply(
-        covered_projected_spread, axis=1
-    )
-    scored["market_spread_correct"] = scored.apply(
-        covered_market_spread, axis=1
-    )
-    scored["model_total_correct"] = scored.apply(
-        lambda row: (
-            row["actual_total"] > row["market_total"]
-            if row["model_total_edge"] >= 0
-            else row["actual_total"] < row["market_total"]
-        )
-        if pd.notna(row["market_total"])
-        else False,
-        axis=1,
-    )
-    scored["market_total_correct"] = False
     scored["model_total_error"] = (
         scored["projected_total"] - scored["actual_total"]
     ).abs()
@@ -653,6 +605,47 @@ def score_model_history(
         pd.to_numeric(scored["market_total"], errors="coerce")
         - scored["actual_total"]
     ).abs()
+    scored["actual_margin_for_market"] = scored.apply(
+        lambda row: (
+            row["actual_margin"]
+            if same_team(row["market_favorite"], row["actual_winner"])
+            else -row["actual_margin"]
+        ),
+        axis=1,
+    )
+    scored["model_margin_for_market"] = scored.apply(
+        lambda row: (
+            row["point_spread"]
+            if same_team(row["predicted_team"], row["market_favorite"])
+            else -row["point_spread"]
+        ),
+        axis=1,
+    )
+    scored["model_spread_error"] = (
+        scored["model_margin_for_market"] - scored["actual_margin_for_market"]
+    ).abs()
+    scored["market_spread_error"] = (
+        abs(pd.to_numeric(scored["market_spread"], errors="coerce"))
+        - scored["actual_margin_for_market"]
+    ).abs()
+    scored["model_spread_correct"] = (
+        scored["model_spread_error"] < scored["market_spread_error"]
+    )
+    scored["market_spread_correct"] = (
+        scored["market_spread_error"] < scored["model_spread_error"]
+    )
+    scored["model_total_correct"] = (
+        scored["model_total_error"] < scored["market_total_error"]
+    )
+    scored["market_total_correct"] = (
+        scored["market_total_error"] < scored["model_total_error"]
+    )
+    scored["spread_tie"] = (
+        scored["model_spread_error"] == scored["market_spread_error"]
+    )
+    scored["total_tie"] = (
+        scored["model_total_error"] == scored["market_total_error"]
+    )
     return scored[scored["actual_winner"].notna()].reset_index(drop=True)
 
 

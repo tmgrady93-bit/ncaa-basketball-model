@@ -529,6 +529,9 @@ benchmarked_yesterday = yesterday[
     yesterday["market_favorite"].notna()
 ] if "market_favorite" in yesterday else yesterday.iloc[0:0]
 if scorecard_view == "Spread":
+    spread_ties = int(
+        benchmarked_yesterday["spread_tie"].fillna(False).sum()
+    )
     benchmarked_yesterday = benchmarked_yesterday[
         benchmarked_yesterday["market_spread"].notna()
     ]
@@ -550,24 +553,28 @@ if scorecard_view == "Spread":
     scorecard_market_success = int(
         benchmarked_yesterday["market_spread_correct"].fillna(False).sum()
     )
-    model_success_label = "Model spread covers"
-    market_success_label = "DraftKings favorite covers"
+    model_success_label = "Model spread closer"
+    market_success_label = "DraftKings spread closer"
     success_help = (
-        "Spread success grades the model's side against the DraftKings line. "
-        "It backs the favorite only when the model margin is larger than the "
-        "market spread; otherwise it backs the other side. Pushes are losses."
+        "Spread success means the projection was closer to the actual final "
+        "margin from DraftKings' favorite's perspective. "
+        f"Ties: {spread_ties}."
     )
 elif scorecard_view == "Total":
+    total_ties = int(
+        benchmarked_yesterday["total_tie"].fillna(False).sum()
+    )
     scorecard_model_success = int(
         benchmarked_yesterday["model_total_correct"].fillna(False).sum()
     )
-    scorecard_market_success = None
-    model_success_label = "Model over/under picks"
-    market_success_label = "Total line baseline"
+    scorecard_market_success = int(
+        benchmarked_yesterday["market_total_correct"].fillna(False).sum()
+    )
+    model_success_label = "Model total closer"
+    market_success_label = "DraftKings total closer"
     success_help = (
-        "Total success grades the model's over/under direction against the "
-        "DraftKings line. Pushes are losses. DraftKings supplies the line, "
-        "not a separate over/under pick."
+        "Total success means the projection was closer to the actual combined "
+        f"score. Ties: {total_ties}."
     )
 else:
     scorecard_model_success = model_wins

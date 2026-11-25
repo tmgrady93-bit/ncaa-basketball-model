@@ -29,6 +29,10 @@ SCORECARD_COLUMNS = {
     "market_spread_correct",
     "model_total_correct",
     "market_total_correct",
+    "model_spread_error",
+    "market_spread_error",
+    "spread_tie",
+    "total_tie",
 }
 
 
@@ -237,12 +241,19 @@ def load_yesterday_scorecard(path: Path) -> pd.DataFrame:
         "market_spread_correct",
         "model_total_correct",
         "market_total_correct",
+        "spread_tie",
+        "total_tie",
     ):
         values = scorecard[column].astype(str).str.lower().map(
             {"true": True, "false": False}
         )
         scorecard[column] = values
-    for column in ("model_total_error", "market_total_error"):
+    for column in (
+        "model_total_error",
+        "market_total_error",
+        "model_spread_error",
+        "market_spread_error",
+    ):
         scorecard[column] = pd.to_numeric(scorecard[column], errors="coerce")
     return scorecard
 

@@ -234,4 +234,7 @@ def test_score_model_history_matches_abbreviated_mascot_names() -> None:
     assert len(scorecard) == 1
     assert scorecard.loc[0, "model_correct"]
     assert not scorecard.loc[0, "model_spread_correct"]
+    assert scorecard.loc[0, "model_spread_error"] == 2.0
+    assert scorecard.loc[0, "market_spread_error"] == 1.0
+    assert scorecard.loc[0, "market_total_error"] == 3.0
     assert scorecard.loc[0, "model_total_correct"]
