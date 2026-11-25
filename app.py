@@ -8,7 +8,6 @@ import streamlit as st
 
 from odds_data import normalize_team_name
 from prediction_data import (
-    as_export_csv,
     available_teams,
     data_as_of,
     filter_predictions,
@@ -119,13 +118,19 @@ st.markdown(
         [data-testid="stVerticalBlockBorderWrapper"] [data-testid="stMarkdownContainer"] p {
             overflow-wrap: anywhere;
         }
-        [data-testid="stVerticalBlock"]:has(.card-state-underdog) {
+        [data-testid="stVerticalBlock"]:has(
+            > [data-testid="stElementContainer"] .card-state-underdog
+        ) {
             background: linear-gradient(145deg, #ecfdf5 0%, #f0fdf4 100%);
-            border-color: #16a34a;
+            border: 1px solid #16a34a !important;
+            border-radius: 10px;
         }
-        [data-testid="stVerticalBlock"]:has(.card-state-fade) {
+        [data-testid="stVerticalBlock"]:has(
+            > [data-testid="stElementContainer"] .card-state-fade
+        ) {
             background: linear-gradient(145deg, #fff7f7 0%, #fef2f2 100%);
-            border-color: #dc2626;
+            border: 1px solid #dc2626 !important;
+            border-radius: 10px;
         }
         .card-state {
             border-radius: 999px;
@@ -161,13 +166,13 @@ st.markdown(
             overflow-wrap: anywhere;
         }
         .positive {
-            color: #15803d;
+            color: #15803d !important;
         }
         .negative {
-            color: #b91c1c;
+            color: #b91c1c !important;
         }
         .neutral {
-            color: #0f172a;
+            color: #0f172a !important;
         }
         .compact-delta {
             min-height: 1.2rem;
@@ -594,7 +599,9 @@ st.caption(
     "H2H shows the predicted winner. Spreads are shown for each favorite, "
     "and totals are the projected combined score."
 )
-card_rows = filtered.head(6).to_dict("records")
+if "matchup_card_limit" not in st.session_state:
+    st.session_state.matchup_card_limit = 6
+card_rows = filtered.head(st.session_state.matchup_card_limit).to_dict("records")
 for row_start in range(0, len(card_rows), 2):
     for column, game in zip(st.columns(2), card_rows[row_start : row_start + 2]):
         with column:
@@ -710,12 +717,21 @@ for row_start in range(0, len(card_rows), 2):
                     ),
                 )
 
-st.download_button(
-    "Download filtered results",
-    data=as_export_csv(filtered),
-    file_name="filtered_basketball_projections.csv",
-    mime="text/csv",
+remaining_matchups = max(
+    0, len(filtered) - st.session_state.matchup_card_limit
 )
+if remaining_matchups:
+    load_column, count_column = st.columns([1, 2])
+    if load_column.button(
+        f"Load {min(6, remaining_matchups)} more matchups",
+        use_container_width=True,
+        type="primary",
+    ):
+        st.session_state.matchup_card_limit += 6
+        st.rerun()
+    count_column.caption(
+        f"Showing {len(card_rows):,} of {len(filtered):,} matching games."
+    )
 
 st.caption(
     "Model outputs are estimates for exploration, not guarantees or betting advice. "
