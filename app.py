@@ -8,7 +8,6 @@ import streamlit as st
 
 from odds_data import normalize_team_name
 from prediction_data import (
-    available_teams,
     data_as_of,
     filter_predictions,
     load_predictions,
@@ -409,7 +408,6 @@ if yesterday.empty:
     st.stop()
 
 
-teams = available_teams(predictions)
 minimum_date = predictions["game_date"].min()
 maximum_date = predictions["game_date"].max()
 
@@ -419,6 +417,11 @@ with st.sidebar:
         "pages/How_It_Works.py",
         label="How the model works",
         icon="📘",
+    )
+    st.page_link(
+        "pages/Full_Details.py",
+        label="Full calculation details",
+        icon="🔎",
     )
     st.divider()
     selected_dates = st.date_input(
@@ -467,7 +470,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 st.markdown(
-    '<div class="hero-copy">Search a team, narrow the schedule, and explore '
+    '<div class="hero-copy">Narrow the schedule and explore '
     "the model's projections, with DraftKings as the side-by-side benchmark.</div>",
     unsafe_allow_html=True,
 )
@@ -476,21 +479,14 @@ st.page_link(
     label="New here? Read how the model works",
     icon="📘",
 )
-
-st.subheader("Choose teams")
-selected_teams = st.multiselect(
-    "Teams shown in the matchup cards",
-    options=teams,
-    placeholder="Search for one or more teams...",
-    help=(
-        "Choose any number of teams. Leave this blank to show every matchup "
-        "that meets the filters."
-    ),
+st.page_link(
+    "pages/Full_Details.py",
+    label="Audit the full calculations",
+    icon="🔎",
 )
 
 filtered = filter_predictions(
     predictions,
-    selected_teams=selected_teams,
     start_date=start_date,
     end_date=end_date,
     min_confidence=float(min_confidence),
