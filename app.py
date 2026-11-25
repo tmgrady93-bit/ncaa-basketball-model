@@ -200,12 +200,6 @@ with st.sidebar:
         icon="📘",
     )
     st.divider()
-    selected_teams = st.multiselect(
-        "Search and select teams",
-        options=teams,
-        placeholder="Type a team name...",
-        help="Leave blank to show every matchup.",
-    )
     selected_dates = st.date_input(
         "Date range",
         value=(minimum_date, maximum_date),
@@ -262,6 +256,17 @@ st.page_link(
     icon="📘",
 )
 
+st.subheader("Choose teams")
+selected_teams = st.multiselect(
+    "Teams shown in the matchup cards",
+    options=teams,
+    placeholder="Search for one or more teams...",
+    help=(
+        "Choose any number of teams. Leave this blank to show every matchup "
+        "that meets the filters."
+    ),
+)
+
 filtered = filter_predictions(
     predictions,
     selected_teams=selected_teams,
@@ -310,6 +315,11 @@ metric_columns[0].metric(
     delta=f"{100 * model_wins / scorecard_games:.1f}%"
     if scorecard_games
     else None,
+    delta_color="off",
+    help=(
+        "The large value is the number of correct model winner picks from "
+        "the previous day. The percentage below shows its winner-pick accuracy."
+    ),
 )
 metric_columns[1].metric(
     "DraftKings winner picks",
@@ -317,6 +327,11 @@ metric_columns[1].metric(
     delta=f"{model_wins - market_wins:+d} wins vs. market"
     if scorecard_games
     else None,
+    delta_color="off",
+    help=(
+        "The large value is DraftKings' correct favorite picks from the "
+        "previous day. The delta compares model wins minus DraftKings wins."
+    ),
 )
 metric_columns[2].metric(
     "Model avg. total miss (MAE)",
@@ -386,10 +401,23 @@ for row_start in range(0, len(card_rows), 2):
                 model_column.metric(
                     game["predicted_team"],
                     f"{format_number(game['win_pct'])}%",
+                    help=(
+                        "H2H is head-to-head. The model estimates this team's "
+                        "probability of winning the game."
+                    ),
                 )
                 market_column.metric(
                     game["market_favorite"],
                     f"{format_number(game['market_win_pct'])}%",
+                    delta=(
+                        f"{game['market_win_pct'] - game['win_pct']:+.1f} pts"
+                    ),
+                    delta_color="off",
+                    help=(
+                        "DraftKings' no-vig moneyline probability for its "
+                        "favorite. The delta compares DraftKings' probability "
+                        "with the model's displayed win probability."
+                    ),
                 )
 
                 label, model_column, market_column = st.columns([0.9, 2.1, 2.1])
@@ -397,10 +425,22 @@ for row_start in range(0, len(card_rows), 2):
                 model_column.metric(
                     game["predicted_team"],
                     f"−{format_number(game['point_spread'])}",
+                    help=(
+                        "The model's expected winning margin for its projected "
+                        "winner. A minus sign indicates the favorite."
+                    ),
                 )
                 market_column.metric(
                     game["market_favorite"],
                     f"−{format_number(game['market_spread'])}",
+                    delta=(
+                        f"{game['market_spread'] - game['point_spread']:+.1f} pts"
+                    ),
+                    delta_color="off",
+                    help=(
+                        "DraftKings' spread for its market favorite. The delta "
+                        "shows how this line differs from the model margin."
+                    ),
                 )
 
                 label, model_column, market_column = st.columns([0.9, 2.1, 2.1])
@@ -408,10 +448,21 @@ for row_start in range(0, len(card_rows), 2):
                 model_column.metric(
                     "Combined score",
                     f"{format_number(game['projected_total'])}",
+                    help=(
+                        "The model's estimate of both teams' combined final score."
+                    ),
                 )
                 market_column.metric(
                     "Combined score",
                     f"{format_number(game['market_total'])}",
+                    delta=(
+                        f"{game['market_total'] - game['projected_total']:+.1f} pts"
+                    ),
+                    delta_color="off",
+                    help=(
+                        "DraftKings' over/under line. The delta compares the "
+                        "market total with the model's projected total."
+                    ),
                 )
 
 st.download_button(
