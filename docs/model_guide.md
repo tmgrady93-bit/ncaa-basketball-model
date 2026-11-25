@@ -73,6 +73,12 @@ SportsDataverse NCAA games without using the current game's result as an input.
 The model is trained again as newer completed games become available. It does
 not make a prediction by simply matching team names or copying betting odds.
 
+The current-season `team_box` and `schedule` parquet files are refreshed daily
+from the SportsDataverse
+[`ncaa-mbb-hoops-data`](https://github.com/sportsdataverse/ncaa-mbb-hoops-data)
+repository. The scheduled job retrains the win, margin, and total models before
+regenerating the upcoming projection export.
+
 ## DraftKings benchmark
 
 The dashboard places the model's prediction beside the current DraftKings

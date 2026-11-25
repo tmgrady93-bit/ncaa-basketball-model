@@ -9,6 +9,7 @@ external/
 notebooks/
 scripts/*
 !scripts/parse_2027_matchups.py
+!scripts/refresh_model_data.py
 data/mbb/
 data/20*
 data/*log*
