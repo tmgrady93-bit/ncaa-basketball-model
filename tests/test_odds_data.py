@@ -8,6 +8,7 @@ from odds_data import (
     match_predictions_to_odds,
     score_yesterday,
     summarize_odds_snapshot,
+    split_model_matchup,
 )
 
 
@@ -76,6 +77,8 @@ def sample_payload() -> dict:
 def test_format_snapshot_timestamp_uses_midnight_utc() -> None:
     assert format_snapshot_timestamp(date(2026, 11, 23)) == "2026-11-23T00:00:00Z"
     assert isinstance(local_today(), date)
+    assert split_model_matchup("Alpha vs. Beta") == ("Alpha", "Beta")
+    assert split_model_matchup("Alpha @ Beta") == ("Alpha", "Beta")
 
 
 def test_summarize_odds_snapshot_builds_game_benchmark() -> None:
@@ -136,6 +139,28 @@ def test_match_predictions_recognizes_state_abbreviation() -> None:
 
     assert matched.loc[0, "market_win_pct_for_prediction"] == 70.0
     assert matched.loc[0, "model_win_probability_edge"] == -10.0
+
+
+def test_match_predictions_repairs_blank_team_columns() -> None:
+    predictions = pd.DataFrame(
+        {
+            "game_date": ["2026-11-23"],
+            "matchup": ["Alpha @ Beta"],
+            "team_1": [None],
+            "team_2": [None],
+            "predicted_team": ["Beta"],
+            "win_pct": [70.0],
+            "projected_total": [150.0],
+        }
+    )
+
+    matched = match_predictions_to_odds(
+        predictions, summarize_odds_snapshot(sample_payload())
+    )
+
+    assert matched.loc[0, "team_1"] == "Alpha"
+    assert matched.loc[0, "team_2"] == "Beta"
+    assert matched.loc[0, "event_id"] == "event-1"
 
 
 def test_score_yesterday_compares_model_and_market() -> None:

@@ -364,6 +364,15 @@ def normalize_team_name(value: Any) -> str:
     return replacements.get(normalized, normalized.replace(" ", ""))
 
 
+def split_model_matchup(matchup: Any) -> tuple[str, str]:
+    text = str(matchup or "")
+    for separator in (" @ ", " vs. "):
+        if separator in text:
+            first, second = text.split(separator, maxsplit=1)
+            return first.strip(), second.strip()
+    return "", ""
+
+
 def _team_similarity(first: Any, second: Any) -> float:
     first_normalized = normalize_team_name(first)
     second_normalized = normalize_team_name(second)
@@ -397,10 +406,21 @@ def match_predictions_to_odds(
         .dt.date
     )
 
-    if not {"team_1", "team_2"}.issubset(model.columns):
-        split = model["matchup"].str.extract(r"^(.*?) (?:@|vs\.) (.*?)$")
-        model["team_1"] = split[0]
-        model["team_2"] = split[1]
+    split_matchups = model["matchup"].map(split_model_matchup)
+    split_team_1 = split_matchups.map(lambda pair: pair[0])
+    split_team_2 = split_matchups.map(lambda pair: pair[1])
+    if "team_1" not in model:
+        model["team_1"] = split_team_1
+    else:
+        model["team_1"] = model["team_1"].where(
+            model["team_1"].notna(), split_team_1
+        )
+    if "team_2" not in model:
+        model["team_2"] = split_team_2
+    else:
+        model["team_2"] = model["team_2"].where(
+            model["team_2"].notna(), split_team_2
+        )
 
     benchmark_available = set(benchmark.index)
     matches: list[int | None] = []
@@ -622,9 +642,16 @@ def write_market_files(
     )
 
     output_dir.mkdir(parents=True, exist_ok=True)
-    yesterday_scorecard.to_csv(
-        output_dir / "yesterday_model_scorecard.csv", index=False
-    )
+    scorecard_path = output_dir / "yesterday_model_scorecard.csv"
+    if yesterday_scorecard.empty and scorecard_path.exists():
+        previous_scorecard = pd.read_csv(scorecard_path)
+        if not previous_scorecard.empty:
+            print(
+                "No completed matches were available for the new scorecard; "
+                "keeping the previous non-empty scorecard."
+            )
+            yesterday_scorecard = previous_scorecard
+    yesterday_scorecard.to_csv(scorecard_path, index=False)
     return matched_upcoming, yesterday_scorecard
 
 
@@ -658,6 +685,15 @@ def main() -> None:
             upcoming["game_date"].eq(today)
         ].copy()
         if not next_scorecard_predictions.empty:
+            split_predictions = next_scorecard_predictions["matchup"].map(
+                split_model_matchup
+            )
+            next_scorecard_predictions["team_1"] = split_predictions.map(
+                lambda pair: pair[0]
+            )
+            next_scorecard_predictions["team_2"] = split_predictions.map(
+                lambda pair: pair[1]
+            )
             retained_predictions = pd.concat(
                 [yesterday, next_scorecard_predictions],
                 ignore_index=True,
