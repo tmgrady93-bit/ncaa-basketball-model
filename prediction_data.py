@@ -25,6 +25,10 @@ SCORECARD_COLUMNS = {
     "market_correct",
     "model_total_error",
     "market_total_error",
+    "model_spread_correct",
+    "market_spread_correct",
+    "model_total_correct",
+    "market_total_correct",
 }
 
 
@@ -226,7 +230,14 @@ def load_yesterday_scorecard(path: Path) -> pd.DataFrame:
     scorecard["game_date"] = pd.to_datetime(
         scorecard["game_date"], format="%Y-%m-%d", errors="raise"
     ).dt.date
-    for column in ("model_correct", "market_correct"):
+    for column in (
+        "model_correct",
+        "market_correct",
+        "model_spread_correct",
+        "market_spread_correct",
+        "model_total_correct",
+        "market_total_correct",
+    ):
         values = scorecard[column].astype(str).str.lower().map(
             {"true": True, "false": False}
         )

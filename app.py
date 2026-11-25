@@ -519,9 +519,23 @@ else:
 st.subheader(
     f"Yesterday's scorecard · {yesterday['game_date'].iloc[0]:%b %d, %Y}"
 )
+scorecard_view = st.selectbox(
+    "Scorecard market",
+    options=["H2H", "Spread", "Total"],
+    index=0,
+    help="Choose the market used for the previous-day success summary.",
+)
 benchmarked_yesterday = yesterday[
     yesterday["market_favorite"].notna()
 ] if "market_favorite" in yesterday else yesterday.iloc[0:0]
+if scorecard_view == "Spread":
+    benchmarked_yesterday = benchmarked_yesterday[
+        benchmarked_yesterday["market_spread"].notna()
+    ]
+elif scorecard_view == "Total":
+    benchmarked_yesterday = benchmarked_yesterday[
+        benchmarked_yesterday["market_total"].notna()
+    ]
 model_wins = int(
     benchmarked_yesterday["model_correct"].fillna(False).sum()
 )
@@ -529,39 +543,75 @@ market_wins = int(
     benchmarked_yesterday["market_correct"].fillna(False).sum()
 )
 scorecard_games = len(benchmarked_yesterday)
+if scorecard_view == "Spread":
+    scorecard_model_success = int(
+        benchmarked_yesterday["model_spread_correct"].fillna(False).sum()
+    )
+    scorecard_market_success = int(
+        benchmarked_yesterday["market_spread_correct"].fillna(False).sum()
+    )
+    model_success_label = "Model spread covers"
+    market_success_label = "DraftKings favorite covers"
+    success_help = (
+        "Spread success grades the model's side against the DraftKings line. "
+        "It backs the favorite only when the model margin is larger than the "
+        "market spread; otherwise it backs the other side. Pushes are losses."
+    )
+elif scorecard_view == "Total":
+    scorecard_model_success = int(
+        benchmarked_yesterday["model_total_correct"].fillna(False).sum()
+    )
+    scorecard_market_success = None
+    model_success_label = "Model over/under picks"
+    market_success_label = "Total line baseline"
+    success_help = (
+        "Total success grades the model's over/under direction against the "
+        "DraftKings line. Pushes are losses. DraftKings supplies the line, "
+        "not a separate over/under pick."
+    )
+else:
+    scorecard_model_success = model_wins
+    scorecard_market_success = market_wins
+    model_success_label = "Model winner picks"
+    market_success_label = "DraftKings winner picks"
+    success_help = (
+        "H2H success grades each model pick and the DraftKings favorite as "
+        "correct when that team wins the game."
+    )
 metric_columns = st.columns(4)
 metric_columns[0].metric(
-    "Model winner picks",
-    f"{model_wins}/{scorecard_games}",
+    model_success_label,
+    f"{scorecard_model_success}/{scorecard_games}",
     help=(
-        "The large value is the number of correct model winner picks from "
-        "the previous day. The percentage below shows its winner-pick accuracy."
+        "The number of successful model projections for the selected market. "
+        + success_help
     ),
 )
 if scorecard_games:
     metric_columns[0].markdown(
         render_delta(
-            100 * model_wins / scorecard_games,
-            "Winner-pick accuracy: correct model picks divided by scored games.",
+            100 * scorecard_model_success / scorecard_games,
+            f"{scorecard_view} success rate for the model.",
             suffix="%",
             threshold=50,
         ),
         unsafe_allow_html=True,
     )
 metric_columns[1].metric(
-    "DraftKings winner picks",
-    f"{market_wins}/{scorecard_games}",
+    market_success_label,
+    f"{scorecard_market_success}/{scorecard_games}"
+    if scorecard_market_success is not None
+    else "DraftKings line",
     help=(
-        "The large value is DraftKings' correct favorite picks from the "
-        "previous day. The delta compares model wins minus DraftKings wins."
+        "Benchmark performance for the selected market. " + success_help
     ),
 )
-if scorecard_games:
+if scorecard_games and scorecard_market_success is not None:
     metric_columns[1].markdown(
         render_delta(
-            model_wins - market_wins,
-            "Model wins minus DraftKings wins. Positive means the model picked more winners yesterday; negative means DraftKings did.",
-            suffix=" wins",
+            scorecard_model_success - scorecard_market_success,
+            "Model successes minus benchmark successes. Positive favors the model; negative favors the benchmark.",
+            suffix=" picks",
         ),
         unsafe_allow_html=True,
     )
@@ -582,6 +632,7 @@ metric_columns[3].metric(
 st.caption(
     "MAE = mean absolute error, or average points missed. A lower total MAE is better."
 )
+st.caption(success_help)
 
 st.caption(
     f"Upcoming benchmarks refreshed {data_as_of(PREDICTIONS_PATH):%B %d, %Y} at "

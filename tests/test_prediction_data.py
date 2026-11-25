@@ -121,6 +121,10 @@ def test_load_yesterday_scorecard_parses_results(tmp_path) -> None:
             "market_correct": [False],
             "model_total_error": [4.5],
             "market_total_error": [8.0],
+            "model_spread_correct": [True],
+            "market_spread_correct": [False],
+            "model_total_correct": [True],
+            "market_total_correct": [False],
         }
     ).to_csv(scorecard_file, index=False)
 
