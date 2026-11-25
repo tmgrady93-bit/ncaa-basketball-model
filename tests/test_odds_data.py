@@ -116,6 +116,8 @@ def test_match_predictions_uses_eastern_game_date() -> None:
     assert matched.loc[0, "model_predicted_team"] == "Beta"
     assert matched.loc[0, "market_win_pct_for_prediction"] > 60
     assert matched.loc[0, "model_total_edge"] == 4.5
+    assert matched.loc[0, "market_spread_for_prediction"] == -4.5
+    assert matched.loc[0, "market_margin_for_prediction"] == 4.5
 
 
 def test_match_predictions_recognizes_state_abbreviation() -> None:

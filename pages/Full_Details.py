@@ -115,14 +115,17 @@ with upcoming_tab:
         ]
     if benchmark_only:
         upcoming_detail = upcoming_detail[
-            upcoming_detail[["market_favorite", "market_spread", "market_total"]]
+            upcoming_detail[
+                [
+                    "market_favorite",
+                    "market_spread_for_prediction",
+                    "market_total",
+                ]
+            ]
             .notna()
             .all(axis=1)
         ]
 
-    upcoming_detail["model_spread_edge"] = (
-        upcoming_detail["market_spread"] - upcoming_detail["point_spread"]
-    )
     upcoming_columns = [
         "game_date",
         "game_time",
@@ -135,7 +138,7 @@ with upcoming_tab:
         "market_win_pct",
         "model_win_probability_edge",
         "point_spread",
-        "market_spread",
+        "market_spread_for_prediction",
         "model_spread_edge",
         "model_total_edge",
         "projected_total",
@@ -166,8 +169,8 @@ with upcoming_tab:
             "point_spread": st.column_config.NumberColumn(
                 "Model spread", format="%.1f"
             ),
-            "market_spread": st.column_config.NumberColumn(
-                "DK spread", format="%.1f"
+            "market_spread_for_prediction": st.column_config.NumberColumn(
+                "DK spread", format="%+.1f"
             ),
             "model_spread_edge": st.column_config.NumberColumn(
                 "Spread edge", format="%+.1f"

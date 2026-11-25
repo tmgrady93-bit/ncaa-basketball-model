@@ -461,6 +461,8 @@ def match_predictions_to_odds(
         "market_favorite",
         "market_win_pct",
         "market_spread",
+        "home_spread",
+        "away_spread",
         "market_total",
         "over_price",
         "under_price",
@@ -492,11 +494,12 @@ def match_predictions_to_odds(
     def draftkings_name(row: pd.Series, model_name: Any) -> Any:
         if pd.isna(row.get("event_id")):
             return model_name
-        if same_team(model_name, row.get("market_home")):
-            return row["market_home"]
-        if same_team(model_name, row.get("market_away")):
-            return row["market_away"]
-        return model_name
+        candidates = [
+            (row.get("market_home"), _team_similarity(model_name, row.get("market_home"))),
+            (row.get("market_away"), _team_similarity(model_name, row.get("market_away"))),
+        ]
+        name, similarity = max(candidates, key=lambda pair: pair[1])
+        return name if similarity > 0.2 else model_name
 
     matched["team_1_display"] = matched.apply(
         lambda row: draftkings_name(row, row["team_1"]), axis=1
@@ -529,6 +532,26 @@ def match_predictions_to_odds(
     matched["model_win_probability_edge"] = (
         matched["win_pct"] - matched["market_win_pct_for_prediction"]
     )
+    matched["market_spread_for_prediction"] = matched.apply(
+        lambda row: (
+            row.get("home_spread")
+            if same_team(row.get("predicted_team_display"), row.get("market_home"))
+            else row.get("away_spread")
+            if same_team(row.get("predicted_team_display"), row.get("market_away"))
+            else None
+        ),
+        axis=1,
+    )
+    matched["market_margin_for_prediction"] = -pd.to_numeric(
+        matched["market_spread_for_prediction"], errors="coerce"
+    )
+    if "point_spread" in matched:
+        matched["model_spread_edge"] = (
+            pd.to_numeric(matched["point_spread"], errors="coerce")
+            - matched["market_margin_for_prediction"]
+        )
+    else:
+        matched["model_spread_edge"] = pd.Series(float("nan"), index=matched.index)
     matched["model_total_edge"] = (
         matched["projected_total"]
         - pd.to_numeric(matched["market_total"], errors="coerce")

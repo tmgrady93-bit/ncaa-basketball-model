@@ -494,7 +494,13 @@ filtered = filter_predictions(
 )
 if benchmark_only:
     filtered = filtered[
-        filtered[["market_favorite", "market_spread", "market_total"]]
+        filtered[
+            [
+                "market_favorite",
+                "market_spread_for_prediction",
+                "market_total",
+            ]
+        ]
         .notna()
         .all(axis=1)
     ]
@@ -661,7 +667,6 @@ for row_start in range(0, len(card_rows), 2):
 
                 label, model_column, market_column = st.columns([0.9, 2.1, 2.1])
                 label.markdown("**Spread**")
-                spread_edge = float(game["market_spread"]) - float(game["point_spread"])
                 render_card_metric(
                     model_column,
                     game["predicted_team"],
@@ -671,14 +676,13 @@ for row_start in range(0, len(card_rows), 2):
                 )
                 render_card_metric(
                     market_column,
-                    game["market_favorite"],
-                    f"−{format_number(game['market_spread'])}",
-                    "DraftKings' spread for its market favorite.",
+                    game["predicted_team"],
+                    f"{float(game['market_spread_for_prediction']):+.1f}",
+                    "DraftKings' spread for the same team selected by the model. A negative number means favorite; a positive number means underdog.",
                     value_color="neutral",
                     delta_html=render_delta(
-                        spread_edge,
-                        "DraftKings spread minus the model margin. Positive is red because the market asks for a larger margin; negative is green because the model margin is larger.",
-                        positive_is_good=False,
+                        game["model_spread_edge"],
+                        "Model expected margin minus DraftKings' expected margin for the same team. Positive favors the model's projection; negative favors DraftKings.",
                     ),
                 )
 
