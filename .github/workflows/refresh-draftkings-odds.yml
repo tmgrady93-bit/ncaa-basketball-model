@@ -50,6 +50,7 @@ jobs:
         run: |
           python odds_data.py \
             --predictions data/2027_upcoming_predictions.csv \
+            --yesterday-predictions data/yesterday_model_predictions.csv \
             --output-dir data
 
       - name: Commit refreshed benchmark files
@@ -57,7 +58,11 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/2027_upcoming_with_benchmarks.csv data/draftkings_ncaab_odds.csv
+          git add \
+            data/2027_upcoming_with_benchmarks.csv \
+            data/draftkings_ncaab_odds.csv \
+            data/yesterday_model_predictions.csv \
+            data/yesterday_model_scorecard.csv
           if git diff --cached --quiet; then
             echo "No benchmark changes to commit."
             exit 0

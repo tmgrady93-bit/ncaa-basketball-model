@@ -4,6 +4,7 @@ import pandas as pd
 
 from odds_data import (
     format_snapshot_timestamp,
+    local_today,
     match_predictions_to_odds,
     score_yesterday,
     summarize_odds_snapshot,
@@ -74,6 +75,7 @@ def sample_payload() -> dict:
 
 def test_format_snapshot_timestamp_uses_midnight_utc() -> None:
     assert format_snapshot_timestamp(date(2026, 11, 23)) == "2026-11-23T00:00:00Z"
+    assert isinstance(local_today(), date)
 
 
 def test_summarize_odds_snapshot_builds_game_benchmark() -> None:
@@ -160,3 +162,46 @@ def test_score_yesterday_compares_model_and_market() -> None:
     assert scorecard.loc[0, "market_correct"]
     assert scorecard.loc[0, "model_total_error"] == 2.0
     assert scorecard.loc[0, "market_total_error"] == 4.5
+
+
+def test_score_model_history_matches_abbreviated_mascot_names() -> None:
+    predictions = pd.DataFrame(
+        {
+            "game_date": ["2026-11-23"],
+            "matchup": ["E Carolina @ App State"],
+            "team_1": ["E Carolina"],
+            "team_2": ["App State"],
+            "predicted_team": ["App State"],
+            "win_pct": [60.0],
+            "point_spread": [3.0],
+            "projected_total": [145.0],
+        }
+    )
+    odds = pd.DataFrame(
+        {
+            "commence_time": ["2026-11-23T23:00:00Z"],
+            "home": ["App State Mountaineers"],
+            "away": ["East Carolina Pirates"],
+            "market_favorite": ["App State Mountaineers"],
+            "market_win_pct": [65.0],
+            "market_spread": [4.0],
+            "market_total": [148.0],
+        }
+    )
+    scores = pd.DataFrame(
+        {
+            "commence_time": pd.to_datetime(["2026-11-23T23:00:00Z"], utc=True),
+            "home": ["App State Mountaineers"],
+            "away": ["East Carolina Pirates"],
+            "home_score": [75],
+            "away_score": [70],
+        }
+    )
+    from odds_data import score_model_history
+
+    scorecard = score_model_history(
+        predictions, odds, scores, score_date=date(2026, 11, 23)
+    )
+
+    assert len(scorecard) == 1
+    assert scorecard.loc[0, "model_correct"]

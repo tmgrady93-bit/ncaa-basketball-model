@@ -7,6 +7,7 @@ from datetime import date, datetime, time, timedelta, timezone
 from difflib import SequenceMatcher
 from pathlib import Path
 from typing import Any
+from zoneinfo import ZoneInfo
 
 import pandas as pd
 import requests
@@ -14,6 +15,11 @@ import requests
 ODDS_API_BASE_URL = "https://api.the-odds-api.com/v4"
 DEFAULT_SPORT = "basketball_ncaab"
 DEFAULT_BOOKMAKER = "draftkings"
+LOCAL_TIMEZONE = ZoneInfo("America/Chicago")
+
+
+def local_today() -> date:
+    return datetime.now(LOCAL_TIMEZONE).date()
 
 
 def require_api_key(value: str | None = None) -> str:
@@ -57,6 +63,61 @@ def fetch_odds_snapshot(
     if snapshot_date is not None and not isinstance(payload, dict):
         raise ValueError("Historical odds response must be a JSON object")
     return payload
+
+
+def fetch_completed_scores(
+    api_key: str,
+    *,
+    days_from: int = 3,
+    sport: str = DEFAULT_SPORT,
+) -> list[dict[str, Any]]:
+    response = requests.get(
+        f"{ODDS_API_BASE_URL}/sports/{sport}/scores",
+        params={
+            "apiKey": require_api_key(api_key),
+            "daysFrom": days_from,
+            "dateFormat": "iso",
+        },
+        timeout=30,
+    )
+    if not response.ok:
+        raise RuntimeError(
+            f"Scores API request failed with {response.status_code}: {response.text}"
+        )
+    payload = response.json()
+    if not isinstance(payload, list):
+        raise ValueError("Scores response must be a JSON list")
+    return payload
+
+
+def summarize_completed_scores(payload: list[dict[str, Any]]) -> pd.DataFrame:
+    rows: list[dict[str, Any]] = []
+    for game in payload:
+        if not game.get("completed"):
+            continue
+        scores = {
+            item.get("name"): item.get("score")
+            for item in game.get("scores", [])
+        }
+        home_score = pd.to_numeric(scores.get(game["home_team"]), errors="coerce")
+        away_score = pd.to_numeric(scores.get(game["away_team"]), errors="coerce")
+        if pd.isna(home_score) or pd.isna(away_score):
+            continue
+        rows.append(
+            {
+                "event_id": game["id"],
+                "commence_time": game["commence_time"],
+                "home": game["home_team"],
+                "away": game["away_team"],
+                "home_score": home_score,
+                "away_score": away_score,
+            }
+        )
+    summary = pd.DataFrame(rows)
+    if summary.empty:
+        return summary
+    summary["commence_time"] = pd.to_datetime(summary["commence_time"], utc=True)
+    return summary
 
 
 def format_snapshot_timestamp(value: date | datetime | str) -> str:
@@ -438,6 +499,87 @@ def score_yesterday(
     return scored
 
 
+def score_model_history(
+    model_predictions: pd.DataFrame,
+    odds: pd.DataFrame,
+    scores: pd.DataFrame,
+    *,
+    score_date: date,
+) -> pd.DataFrame:
+    scored = match_predictions_to_odds(model_predictions, odds)
+    scored["game_date"] = pd.to_datetime(scored["game_date"]).dt.date
+    completed_scores = scores.copy()
+    completed_scores["game_date"] = (
+        completed_scores["commence_time"]
+        .dt.tz_convert("America/New_York")
+        .dt.date
+    )
+    completed_scores = completed_scores[
+        completed_scores["game_date"].eq(score_date)
+    ].copy()
+
+    available_scores = set(completed_scores.index)
+    matched_scores: list[dict[str, Any]] = []
+    for _, prediction in scored.iterrows():
+        candidates = completed_scores[
+            completed_scores["game_date"].eq(prediction["game_date"])
+            & completed_scores.index.to_series().isin(available_scores)
+        ]
+        best_index = None
+        best_similarity = 0.58
+        for score_index, result in candidates.iterrows():
+            direct = (
+                _team_similarity(prediction["team_1"], result["away"])
+                + _team_similarity(prediction["team_2"], result["home"])
+            ) / 2
+            reversed_score = (
+                _team_similarity(prediction["team_1"], result["home"])
+                + _team_similarity(prediction["team_2"], result["away"])
+            ) / 2
+            similarity = max(direct, reversed_score)
+            if similarity > best_similarity:
+                best_similarity = similarity
+                best_index = score_index
+        if best_index is None:
+            matched_scores.append(
+                {"home_score": None, "away_score": None, "actual_winner": None}
+            )
+            continue
+        result = completed_scores.loc[best_index]
+        available_scores.discard(best_index)
+        matched_scores.append(
+            {
+                "home_score": result["home_score"],
+                "away_score": result["away_score"],
+                "actual_winner": (
+                    result["home"]
+                    if result["home_score"] > result["away_score"]
+                    else result["away"]
+                ),
+            }
+        )
+
+    actuals = pd.DataFrame(matched_scores, index=scored.index)
+    scored = pd.concat([scored, actuals], axis=1)
+    scored["model_correct"] = (
+        scored["predicted_team"].map(normalize_team_name)
+        == scored["actual_winner"].map(normalize_team_name)
+    )
+    scored["market_correct"] = (
+        scored["market_favorite"].map(normalize_team_name)
+        == scored["actual_winner"].map(normalize_team_name)
+    )
+    scored["actual_total"] = scored["home_score"] + scored["away_score"]
+    scored["model_total_error"] = (
+        scored["projected_total"] - scored["actual_total"]
+    ).abs()
+    scored["market_total_error"] = (
+        pd.to_numeric(scored["market_total"], errors="coerce")
+        - scored["actual_total"]
+    ).abs()
+    return scored[scored["actual_winner"].notna()].reset_index(drop=True)
+
+
 def refresh_current_benchmarks(
     upcoming_predictions: pd.DataFrame,
     api_key: str,
@@ -466,11 +608,17 @@ def write_market_files(
         upcoming_predictions, api_key, output_dir
     )
 
-    previous_date = historical_date or (date.today() - timedelta(days=1))
+    previous_date = historical_date or (local_today() - timedelta(days=1))
     historical_payload = fetch_odds_snapshot(api_key, snapshot_date=previous_date)
     historical_odds = summarize_odds_snapshot(historical_payload)
-    yesterday_scorecard = score_yesterday(
-        yesterday_predictions, historical_odds
+    completed_scores = summarize_completed_scores(
+        fetch_completed_scores(api_key, days_from=3)
+    )
+    yesterday_scorecard = score_model_history(
+        yesterday_predictions,
+        historical_odds,
+        completed_scores,
+        score_date=previous_date,
     )
 
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -502,6 +650,21 @@ def main() -> None:
             args.historical_date,
         )
         print(f"Yesterday scorecard games: {len(scorecard):,}")
+        today = local_today()
+        upcoming["game_date"] = pd.to_datetime(
+            upcoming["game_date"], errors="raise"
+        ).dt.date
+        next_scorecard_predictions = upcoming[
+            upcoming["game_date"].eq(today)
+        ].copy()
+        if not next_scorecard_predictions.empty:
+            next_scorecard_predictions.to_csv(
+                args.yesterday_predictions, index=False
+            )
+            print(
+                f"Prepared {len(next_scorecard_predictions):,} prediction rows "
+                f"for the {today:%Y-%m-%d} scorecard."
+            )
     else:
         matched = refresh_current_benchmarks(
             upcoming, api_key, args.output_dir

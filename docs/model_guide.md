@@ -81,9 +81,13 @@ Moneyline prices are converted to no-vig implied probabilities before the
 model edge is shown. Missing markets are labeled rather than treated as zero.
 
 The scorecard at the top compares winner picks and total-point error for the
-model and DraftKings on the latest date represented in the completed game
-data. When the data feed is behind, the displayed scorecard date makes that
-lag explicit.
+model and DraftKings on the previous day's completed games. Completed results
+come from The Odds API so the scorecard can remain current even when the
+SportsDataverse completed-game feed is delayed.
+
+**MAE** means mean absolute error. For game totals, it is the average number
+of points by which the projection missed the final combined score. Lower is
+better.
 
 ## How successful have the predictions been?
 
