@@ -70,10 +70,10 @@ with st.expander("What do the columns mean?", expanded=False):
 
         - **Model win % / Model winner:** The model's favorite and estimated win probability.
         - **DK favorite %:** DraftKings' no-vig implied chance for its favorite.
-        - **DK % for model pick:** DraftKings' implied chance for the same team the model selected.
         - **H2H edge:** Model win probability minus the DraftKings probability for the model's pick.
-        - **Model margin:** How many points the model expects its picked winner to win by.
+        - **Model spread:** How many points the model expects its picked winner to win by.
         - **DK spread:** How many points DraftKings expects its favorite to win by.
+        - **Spread edge:** DK spread minus the model spread; positive means DraftKings has the larger margin.
         - **Model total / DK total:** The projected combined points from each source.
         - **Total edge:** Model total minus the DraftKings total.
 
@@ -81,7 +81,7 @@ with st.expander("What do the columns mean?", expanded=False):
 
         - **Actual margin:** Absolute distance between the final scores.
         - **Margin for market favorite:** Final margin, positive when the DraftKings favorite won.
-        - **Model margin for market favorite:** The model margin converted to the DraftKings favorite's perspective. Positive favors that team; negative favors the opponent.
+        - **Model spread for DK favorite:** The model spread converted to the DraftKings favorite's perspective. Positive favors that team; negative favors the opponent.
         - **Spread error:** Absolute difference between a source's margin estimate and the final margin. Lower is better.
         - **Total error:** Absolute difference between a source's projected total and the final combined score. Lower is better.
         - **Model / DK closer:** Checked when that source's estimate was closer to the actual result than the other source.
@@ -120,6 +120,9 @@ with upcoming_tab:
             .all(axis=1)
         ]
 
+    upcoming_detail["model_spread_edge"] = (
+        upcoming_detail["market_spread"] - upcoming_detail["point_spread"]
+    )
     upcoming_columns = [
         "game_date",
         "game_time",
@@ -130,16 +133,13 @@ with upcoming_tab:
         "win_pct",
         "market_favorite",
         "market_win_pct",
-        "market_win_pct_for_prediction",
         "model_win_probability_edge",
         "point_spread",
         "market_spread",
+        "model_spread_edge",
         "model_total_edge",
         "projected_total",
         "market_total",
-        "over_price",
-        "under_price",
-        "event_id",
     ]
     st.caption(f"{len(upcoming_detail):,} rows")
     st.dataframe(
@@ -160,17 +160,17 @@ with upcoming_tab:
             "market_win_pct": st.column_config.NumberColumn(
                 "DK favorite %", format="%.1f"
             ),
-            "market_win_pct_for_prediction": st.column_config.NumberColumn(
-                "DK % for model pick", format="%.1f"
-            ),
             "model_win_probability_edge": st.column_config.NumberColumn(
                 "H2H edge", format="%+.1f"
             ),
             "point_spread": st.column_config.NumberColumn(
-                "Model margin", format="%.1f"
+                "Model spread", format="%.1f"
             ),
             "market_spread": st.column_config.NumberColumn(
                 "DK spread", format="%.1f"
+            ),
+            "model_spread_edge": st.column_config.NumberColumn(
+                "Spread edge", format="%+.1f"
             ),
             "projected_total": st.column_config.NumberColumn(
                 "Model total", format="%.1f"
@@ -181,18 +181,13 @@ with upcoming_tab:
             "model_total_edge": st.column_config.NumberColumn(
                 "Total edge", format="%+.1f"
             ),
-            "over_price": st.column_config.NumberColumn(
-                "Over odds", format="%.0f"
-            ),
-            "under_price": st.column_config.NumberColumn(
-                "Under odds", format="%.0f"
-            ),
-            "event_id": "Event ID",
         },
     )
     st.download_button(
         "Download upcoming detail",
-        data=upcoming_detail.to_csv(index=False).encode("utf-8"),
+        data=upcoming_detail[
+            [column for column in upcoming_columns if column in upcoming_detail]
+        ].to_csv(index=False).encode("utf-8"),
         file_name="upcoming_projection_detail.csv",
         mime="text/csv",
     )
@@ -294,13 +289,13 @@ with completed_tab:
                 "DK picked winner"
             ),
             "point_spread": st.column_config.NumberColumn(
-                "Model margin", format="%.1f"
+                "Model spread", format="%.1f"
             ),
             "market_spread": st.column_config.NumberColumn(
                 "DK spread", format="%.1f"
             ),
             "model_margin_for_market": st.column_config.NumberColumn(
-                "Model margin for DK favorite", format="%.1f"
+                "Model spread for DK favorite", format="%.1f"
             ),
             "actual_margin_for_market": st.column_config.NumberColumn(
                 "Actual margin for DK favorite", format="%.1f"
