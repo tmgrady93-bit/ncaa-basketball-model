@@ -1,40 +1,4 @@
 game_date,matchup,team_1,team_2,predicted_team,win_pct,point_spread,projected_total,game_time,venue,neutral_site
-2026-11-23,Eastern Wash. @ UNLV,Eastern Wash.,UNLV,UNLV,76.1,10.0,155.3,,,
-2026-11-23,Alabama St. @ California,Alabama St.,California,California,79.1,11.4,153.0,,,
-2026-11-23,UNI vs. Davidson,UNI,Davidson,Davidson,61.0,6.7,144.0,,,
-2026-11-23,St. Bonaventure vs. App State,St. Bonaventure,App State,App State,60.4,6.9,144.1,,,
-2026-11-23,Colorado St. vs. Arizona,Colorado St.,Arizona,Arizona,80.8,1.7,153.9,,,
-2026-11-23,San Jose St. vs. Loyola Chicago,San Jose St.,Loyola Chicago,Loyola Chicago,78.9,0.7,150.5,,,
-2026-11-23,Indiana St. vs. East Carolina,Indiana St.,East Carolina,East Carolina,66.6,4.6,149.6,,,
-2026-11-23,Long Beach St. @ FIU,Long Beach St.,FIU,FIU,83.6,13.9,153.9,,,
-2026-11-23,Charlotte vs. FGCU,Charlotte,FGCU,FGCU,65.4,5.1,147.3,,,
-2026-11-23,Akron vs. Wright St.,Akron,Wright St.,Wright St.,65.6,5.0,153.8,,,
-2026-11-23,Tulsa vs. Oregon St.,Tulsa,Oregon St.,Tulsa,52.2,11.2,155.8,,,
-2026-11-23,Ole Miss vs. Clemson,Ole Miss,Clemson,Ole Miss,58.4,13.3,150.6,,,
-2026-11-23,Middle Tenn. vs. Southern Ill.,Middle Tenn.,Southern Ill.,Southern Ill.,67.5,4.3,144.7,,,
-2026-11-23,IU Indy vs. William & Mary,IU Indy,William & Mary,William & Mary,76.1,0.7,167.9,,,
-2026-11-23,Southern Utah vs. Arkansas St.,Southern Utah,Arkansas St.,Arkansas St.,73.2,2.0,162.3,,,
-2026-11-23,Tulane vs. Georgia St.,Tulane,Georgia St.,Georgia St.,73.3,1.9,156.0,,,
-2026-11-23,Yale vs. Belmont,Yale,Belmont,Belmont,55.7,8.5,152.4,,,
-2026-11-23,Nevada vs. San Francisco,Nevada,San Francisco,San Francisco,53.6,9.2,146.8,,,
-2026-11-23,Washington vs. BYU,Washington,BYU,BYU,81.2,1.9,155.6,,,
-2026-11-23,RIT @ Buffalo,RIT,Buffalo,Buffalo,75.0,9.5,140.5,,,
-2026-11-23,UMES @ Youngstown St.,UMES,Youngstown St.,Youngstown St.,81.5,12.7,142.4,,,
-2026-11-23,Mansfield @ Le Moyne,Mansfield,Le Moyne,Le Moyne,88.3,17.2,139.7,,,
-2026-11-23,Penn St. Brandywine @ La Salle,Penn St. Brandywine,La Salle,La Salle,97.9,32.8,135.7,,,
-2026-11-23,FDU @ Iona,FDU,Iona,Iona,90.4,19.1,144.0,,,
-2026-11-23,Illinois St. vs. Santa Clara,Illinois St.,Santa Clara,Santa Clara,73.8,1.7,151.9,,,
-2026-11-23,Central Ark. @ North Florida,Central Ark.,North Florida,Central Ark.,71.1,7.4,154.0,,,
-2026-11-23,Ga. Southern @ Northern Ky.,Ga. Southern,Northern Ky.,Ga. Southern,50.7,0.0,166.0,,,
-2026-11-23,Kentucky St. @ ETSU,Kentucky St.,ETSU,ETSU,97.4,30.9,153.8,,,
-2026-11-23,N.C. A&T @ South Carolina St.,N.C. A&T,South Carolina St.,South Carolina St.,72.3,8.3,152.1,,,
-2026-11-23,Notre Dame (MD) @ Howard,Notre Dame (MD),Howard,Howard,99.2,40.9,160.4,,,
-2026-11-23,A&M-Corpus Christi @ Wichita St.,A&M-Corpus Christi,Wichita St.,Wichita St.,80.7,12.3,145.9,,,
-2026-11-23,Denver @ Kansas,Denver,Kansas,Kansas,82.1,13.0,148.9,,,
-2026-11-23,Winthrop @ Illinois,Winthrop,Illinois,Illinois,94.9,24.8,162.2,,,
-2026-11-23,Monmouth @ North Carolina,Monmouth,North Carolina,North Carolina,80.1,12.0,147.8,,,
-2026-11-23,VCU vs. Providence,VCU,Providence,Providence,58.1,7.7,145.6,,,
-2026-11-23,UNC Greensboro @ Pepperdine,UNC Greensboro,Pepperdine,Pepperdine,63.5,4.9,160.3,,,
 2026-11-24,Wright St vs. St Bonaventure,,,St. Bonaventure,60.6,1.2,152.9,10:00 AM,State Farm Field House,True
 2026-11-24,Alabama vs. Baylor,,,Baylor,61.1,1.4,162.1,10:00 PM,T-Mobile Arena,True
 2026-11-24,St John's vs. Oregon,,,St. John's (NY),77.4,12.8,143.5,10:30 PM,Michelob ULTRA Arena,True
@@ -160,3 +124,17 @@ game_date,matchup,team_1,team_2,predicted_team,win_pct,point_spread,projected_to
 2026-11-25,UC Davis vs. Omaha,UC Davis,Omaha,UC Davis,56.3,4.6,143.7,8:00 PM,Resorts World Events Center,True
 2026-11-25,E Washington @ Loyola Mymt,E Washington,Loyola Mymt,LMU (CA),69.7,7.3,152.0,9:00 PM,Gersten Pavilion,False
 2026-11-25,Miss Valley St @ New Mexico,Miss Valley St,New Mexico,New Mexico,97.1,29.8,153.7,9:00 PM,The Pit,False
+2026-11-26,Omaha vs. Pacific,Omaha,Pacific,Pacific,87.1,13.8,137.9,10:30 PM,Resorts World Events Center,True
+2026-11-26,Georgia vs. Cincinnati,Georgia,Cincinnati,Cincinnati,69.3,4.5,153.6,11:00 AM,State Farm Field House,True
+2026-11-26,Incarnate Word @ Hawai'i,Incarnate Word,Hawai'i,Hawaii,84.4,14.5,146.8,12:00 AM,Bankoh Arena at Stan Sheriff Center,False
+2026-11-26,Army @ UTSA,Army,UTSA,UTSA,68.6,6.8,146.5,12:00 PM,UTSA Convocation Center,False
+2026-11-26,Oklahoma vs. Purdue,Oklahoma,Purdue,Purdue,83.7,11.5,152.6,12:00 PM,Suncoast Credit Union Arena,True
+2026-11-26,Boston College vs. UCF,Boston College,UCF,UCF,57.6,0.2,147.7,1:30 PM,State Farm Field House,True
+2026-11-26,South Carolina vs. Arizona St,South Carolina,Arizona St,Arizona St.,75.8,7.3,141.9,2:00 PM,Acrisure Arena,True
+2026-11-26,Georgetown vs. Texas,Georgetown,Texas,Texas,77.9,8.3,146.6,2:30 PM,Jenny Craig Pavilion,True
+2026-11-26,Arkansas vs. Michigan St,Arkansas,Michigan St,Michigan St.,74.5,6.7,158.8,4:30 PM,Little Caesars Arena,True
+2026-11-26,Utah St vs. USC,Utah St,USC,Utah St.,57.5,4.9,157.7,4:30 PM,Acrisure Arena,True
+2026-11-26,Saint Mary's vs. UCLA,Saint Mary's,UCLA,UCLA,56.5,0.2,153.5,5:00 PM,Jenny Craig Pavilion,True
+2026-11-26,DePaul vs. Pittsburgh,DePaul,Pittsburgh,Pittsburgh,60.4,1.2,141.8,7:00 PM,Suncoast Credit Union Arena,True
+2026-11-26,SMU vs. LSU,SMU,LSU,LSU,51.6,1.9,157.0,7:00 PM,Acrisure Arena,True
+2026-11-26,Jacksonville St vs. UC Davis,Jacksonville St,UC Davis,UC Davis,64.3,2.6,146.5,8:00 PM,Resorts World Events Center,True
