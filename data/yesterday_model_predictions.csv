@@ -1,78 +1,4 @@
 game_date,matchup,team_1,team_2,predicted_team,win_pct,point_spread,projected_total,game_time,venue,neutral_site
-2026-11-24,Wright St vs. St Bonaventure,,,St. Bonaventure,60.6,1.2,152.9,10:00 AM,State Farm Field House,True
-2026-11-24,Alabama vs. Baylor,,,Baylor,61.1,1.4,162.1,10:00 PM,T-Mobile Arena,True
-2026-11-24,St John's vs. Oregon,,,St. John's (NY),77.4,12.8,143.5,10:30 PM,Michelob ULTRA Arena,True
-2026-11-24,New Mexico St vs. Ohio,,,Ohio,74.4,6.5,153.3,11:00 AM,The Reef at FSCJ South Campus,True
-2026-11-24,SE Louisiana vs. N Colorado,,,Northern Colo.,85.6,12.6,151.0,12:30 PM,Hard Rock Hotel Riviera Maya,True
-2026-11-24,Belmont vs. Akron,,,Akron,80.7,9.6,153.2,12:30 PM,State Farm Field House,True
-2026-11-24,S Utah @ Florida Intl,,,FIU,79.6,11.7,159.4,1:00 PM,Ocean Bank Convocation Center,False
-2026-11-24,Illinois Chicago vs. Rice,,,UIC,55.8,4.4,149.7,1:30 PM,The Reef at FSCJ South Campus,True
-2026-11-24,Pittsburgh vs. Oklahoma,,,Oklahoma,63.9,2.4,151.2,1:30 PM,Suncoast Credit Union Arena,True
-2026-11-24,Oregon St vs. San Francisco,,,San Francisco,58.7,0.5,150.2,2:00 PM,Acrisure Arena,True
-2026-11-24,North Dakota vs. Detroit Mercy,,,Detroit Mercy,63.2,2.1,151.8,3:00 PM,Hard Rock Hotel Riviera Maya,True
-2026-11-24,Maryland vs. Tennessee,,,Tennessee,89.2,15.4,144.0,3:00 PM,Michelob ULTRA Arena,True
-2026-11-24,App State vs. Yale,,,Yale,61.9,1.7,143.7,3:00 PM,State Farm Field House,True
-2026-11-24,TCU vs. Miami,,,Miami (FL),67.1,3.6,150.6,3:00 PM,T-Mobile Arena,True
-2026-11-24,Arkansas St vs. Long Beach St,,,Arkansas St.,51.4,2.9,156.0,3:30 PM,Ocean Bank Convocation Center,True
-2026-11-24,New Haven vs. Lindenwood,,,Lindenwood,71.3,5.2,138.4,4:00 PM,Stony Brook Arena,True
-2026-11-24,Tulsa vs. Illinois St,,,Tulsa,55.1,4.2,152.9,4:30 PM,Acrisure Arena,True
-2026-11-24,Bloomsburg @ Wagner,,,Wagner,94.5,24.2,140.5,5:00 PM,Spiro Sports Center,False
-2026-11-24,Kent St vs. Wyoming,,,Wyoming,73.2,6.0,151.0,5:30 PM,Ocean Center,True
-2026-11-24,Michigan vs. Creighton,,,Michigan,82.7,15.6,151.9,5:30 PM,T-Mobile Arena,True
-2026-11-24,Iowa St vs. San Diego St,,,Iowa St.,63.5,7.1,149.6,5:30 PM,Michelob ULTRA Arena,True
-2026-11-24,Emerson @ Quinnipiac,,,Quinnipiac,98.9,38.5,148.5,5:30 PM,M&T Bank Arena,False
-2026-11-24,Mercer @ Florida Atlantic,,,Fla. Atlantic,66.6,6.0,153.4,6:00 PM,Abessinio Court at Eleanor R. Baldwin Arena,False
-2026-11-24,DePaul vs. Purdue,,,Purdue,78.3,8.4,141.9,6:00 PM,Suncoast Credit Union Arena,True
-2026-11-24,S Indiana @ VMI,,,Southern Ind.,57.9,2.5,149.2,6:00 PM,Cameron Hall,False
-2026-11-24,E Michigan vs. Kennesaw St,,,Kennesaw St.,84.8,12.1,148.9,6:00 PM,Hard Rock Hotel Riviera Maya,True
-2026-11-24,Queens @ Wofford,,,Queens (NC),52.4,0.6,168.6,6:00 PM,Jerry Richardson Indoor Stadium,False
-2026-11-24,Sacred Heart @ Rutgers,,,Rutgers,70.2,7.4,146.0,6:00 PM,Jersey Mike's Arena,False
-2026-11-24,Elon @ Furman,,,Furman,88.1,17.1,147.7,6:30 PM,Timmons Arena,False
-2026-11-24,Lamar vs. Robert Morris,,,Robert Morris,83.7,11.4,142.6,6:30 PM,The Reef at FSCJ South Campus,True
-2026-11-24,Charleston So @ J Madison,,,James Madison,74.9,9.4,154.9,7:00 PM,Atlantic Union Bank Center,False
-2026-11-24,Delaware St @ Chattanooga,,,Chattanooga,72.3,8.3,149.4,7:00 PM,McKenzie Arena,False
-2026-11-24,Campbell @ Coastal Car,,,Coastal Carolina,59.5,3.5,146.6,7:00 PM,HTC Center,False
-2026-11-24,Coppin St @ Villanova,,,Villanova,78.9,11.3,142.6,7:00 PM,The William B. Finneran Pavilion,False
-2026-11-24,Gardner-Webb @ Bowling Green,,,Bowling Green,88.9,17.7,153.6,7:00 PM,Stroh Center,False
-2026-11-24,Mt St Mary's @ Morgan St,,,Morgan St.,62.4,4.5,143.5,7:00 PM,Talmadge L. Hill Field House,False
-2026-11-24,Hampton @ Old Dominion,,,Old Dominion,87.9,16.9,148.5,7:00 PM,Chartway Arena,False
-2026-11-24,Tarleton St @ Weber St,,,Weber St.,60.2,3.7,154.8,7:00 PM,Dee Events Center,False
-2026-11-24,Rider @ Loyola MD,,,Loyola Maryland,74.7,9.3,148.4,7:00 PM,Reitz Arena,False
-2026-11-24,Samford @ Georgia Tech,,,Samford,60.3,3.3,154.4,7:00 PM,Hank McCamish Pavilion,False
-2026-11-24,Nevada vs. Santa Clara,,,Santa Clara,67.0,3.5,151.7,7:00 PM,Acrisure Arena,True
-2026-11-24,Binghamton @ Lehigh,,,Lehigh,74.6,9.3,140.5,7:00 PM,Stabler Arena,False
-2026-11-24,Vermont @ Siena,,,Siena,68.0,6.5,136.5,7:00 PM,MVP Arena,False
-2026-11-24,Stetson @ S Florida,,,South Fla.,92.8,21.7,153.4,7:00 PM,Yuengling Center,False
-2026-11-24,Bryant @ Marist,,,Marist,84.9,14.8,136.0,7:00 PM,McCann Arena,False
-2026-11-24,Vanderbilt @ Ohio St,,,Vanderbilt,60.1,3.2,152.3,7:00 PM,Value City Arena,False
-2026-11-24,Milwaukee @ Florida,,,Florida,94.2,23.7,156.3,7:00 PM,Tower Hill Arena,False
-2026-11-24,Boston U @ Harvard,,,Harvard,70.1,7.4,137.8,7:00 PM,Lavietes Pavilion,False
-2026-11-24,Jacksonville @ Indiana,,,Indiana,59.8,3.6,148.4,7:00 PM,Simon Skjodt Assembly Hall,False
-2026-11-24,UMBC @ Iowa,,,Iowa,71.2,7.8,142.2,7:00 PM,Carver-Hawkeye Arena,False
-2026-11-24,New Hampshire @ Seton Hall,,,Seton Hall,86.1,15.6,134.7,7:00 PM,Prudential Center,False
-2026-11-24,Georgia So vs. Bellarmine,,,Ga. Southern,65.4,7.8,162.5,7:00 PM,Truist Arena,True
-2026-11-24,Hou Christian @ UL Monroe,,,Houston Christian,65.6,5.2,149.4,7:30 PM,b1Bank Fant Coliseum,False
-2026-11-24,W Georgia @ Tenn Tech,,,Tennessee Tech,69.7,7.2,152.4,7:30 PM,Hooper Eblen Center,False
-2026-11-24,Alcorn St @ Louisiana Tech,,,Louisiana Tech,93.8,23.2,142.8,7:30 PM,Thomas Assembly Center,False
-2026-11-24,Purdue FW @ SE Missouri St,,,Southeast Mo. St.,71.3,7.9,148.6,7:30 PM,Show Me Center,False
-2026-11-24,Duquesne vs. High Point,,,High Point,90.8,16.8,144.0,7:30 PM,Ocean Center,True
-2026-11-24,Florida A&M @ S Alabama,,,South Alabama,76.0,9.9,147.8,8:00 PM,Mitchell Center,False
-2026-11-24,Louisville vs. Texas Tech,,,Texas Tech,64.6,2.6,148.8,8:00 PM,Michelob ULTRA Arena,True
-2026-11-24,Oral Roberts @ UT Arlington,,,Oral Roberts,53.1,0.9,141.6,8:00 PM,College Park Center,False
-2026-11-24,Lipscomb @ Auburn,,,Auburn,86.4,15.8,149.4,8:00 PM,Neville Arena,False
-2026-11-24,Alabama A&M @ N Alabama,,,Alabama A&M,52.7,0.7,148.5,8:00 PM,CB&S Bank Arena at Flowers Hall,False
-2026-11-24,Bucknell @ Cornell,,,Cornell,85.4,15.1,152.6,8:00 PM,Newman Arena,False
-2026-11-24,Army vs. Air Force,,,Army West Point,58.1,5.2,150.5,8:00 PM,UTSA Convocation Center,True
-2026-11-24,C Michigan @ Notre Dame,,,Notre Dame,74.6,9.3,152.0,8:00 PM,Purcell Pavilion,False
-2026-11-24,Drexel @ Penn,,,Penn,74.3,9.2,144.5,8:00 PM,The Palestra,False
-2026-11-24,Green Bay @ Kansas City,,,Green Bay,74.2,8.7,147.9,8:00 PM,Municipal Auditorium,False
-2026-11-24,UTEP vs. Charleston,,,Col. of Charleston,81.2,9.9,143.9,8:30 PM,Hard Rock Hotel Riviera Maya,True
-2026-11-24,NC Greensboro @ UCSB,,,UC Santa Barbara,74.7,9.3,150.4,9:00 PM,The Thunderdome,False
-2026-11-24,Sam Houston @ Washington St,,,Washington St.,62.0,4.3,157.2,9:00 PM,Beasley Coliseum,False
-2026-11-24,Evansville @ Missouri,,,Missouri,91.8,20.6,155.1,9:00 PM,Mizzou Arena,False
-2026-11-24,Idaho St @ Boise St,,,Boise St.,91.9,20.7,157.9,9:00 PM,ExtraMile Arena,False
-2026-11-24,NC Asheville @ Florida St,,,Florida St.,91.3,20.0,158.8,9:00 PM,Donald L. Tucker Civic Center,False
-2026-11-24,Grand Canyon vs. Saint Louis,,,Saint Louis,62.1,1.7,158.6,9:30 PM,Acrisure Arena,True
 2026-11-25,St Bonaventure vs. Belmont,St Bonaventure,Belmont,St. Bonaventure,55.5,4.3,146.8,10:00 AM,State Farm Field House,True
 2026-11-25,Pacific vs. Jacksonville St,Pacific,Jacksonville St,Jacksonville St.,60.2,1.1,141.8,10:30 PM,Resorts World Events Center,True
 2026-11-25,Charlotte vs. N Iowa,Charlotte,N Iowa,UNI,76.6,7.6,149.8,11:00 AM,Suncoast Credit Union Arena,True
@@ -138,3 +64,41 @@ game_date,matchup,team_1,team_2,predicted_team,win_pct,point_spread,projected_to
 2026-11-26,DePaul vs. Pittsburgh,DePaul,Pittsburgh,Pittsburgh,60.4,1.2,141.8,7:00 PM,Suncoast Credit Union Arena,True
 2026-11-26,SMU vs. LSU,SMU,LSU,LSU,51.6,1.9,157.0,7:00 PM,Acrisure Arena,True
 2026-11-26,Jacksonville St vs. UC Davis,Jacksonville St,UC Davis,UC Davis,64.3,2.6,146.5,8:00 PM,Resorts World Events Center,True
+2026-11-27,Jacksonville St vs. Omaha,Jacksonville St,Omaha,Jacksonville St.,60.9,6.1,146.4,10:30 PM,Resorts World Events Center,True
+2026-11-27,Virginia vs. Xavier,Virginia,Xavier,Virginia,59.9,5.8,154.1,11:00 AM,Imperial Arena,True
+2026-11-27,Liberty vs. St Thomas,Liberty,St Thomas,St. Thomas (MN),69.8,4.7,151.2,12:00 PM,Raiford G. Trask Coliseum,True
+2026-11-27,Hampton vs. UMass Lowell,Hampton,UMass Lowell,UMass Lowell,87.4,14.0,139.7,1:00 PM,Bender Arena,True
+2026-11-27,Vermont vs. Merrimack,Vermont,Merrimack,Vermont,53.4,3.5,134.7,1:00 PM,David S. Mack Sports and Exhibition Complex,True
+2026-11-27,Le Moyne vs. Maine,Le Moyne,Maine,Maine,71.4,5.4,139.1,2:00 PM,Kirby Sports Center,True
+2026-11-27,Navy @ Fairfield,Navy,Fairfield,Fairfield,68.6,6.8,135.8,2:00 PM,Leo D. Mahoney Arena,False
+2026-11-27,Southern @ Vanderbilt,Southern,Vanderbilt,Vanderbilt,96.7,28.7,153.8,2:00 PM,Memorial Gymnasium,False
+2026-11-27,Fresno St vs. S Alabama,Fresno St,S Alabama,South Alabama,69.6,4.7,155.6,2:00 PM,XULA Convocation Center,True
+2026-11-27,Texas St @ Louisiana Tech,Texas St,Louisiana Tech,Louisiana Tech,55.2,2.0,138.7,3:00 PM,Thomas Assembly Center,False
+2026-11-27,Princeton @ NC Wilmington,Princeton,NC Wilmington,UNCW,59.8,3.6,147.5,3:00 PM,Raiford G. Trask Coliseum,False
+2026-11-27,Bellarmine @ Butler,Bellarmine,Butler,Butler,87.5,16.7,156.0,3:00 PM,Hinkle Fieldhouse,False
+2026-11-27,Bucknell vs. La Salle,Bucknell,La Salle,La Salle,64.2,2.6,151.6,3:30 PM,The Palestra,True
+2026-11-27,Colgate @ Hofstra,Colgate,Hofstra,Hofstra,66.7,6.1,145.8,3:30 PM,David S. Mack Sports and Exhibition Complex,False
+2026-11-27,UMBC @ G Washington,UMBC,G Washington,George Washington,86.4,15.8,146.0,4:00 PM,Charles E. Smith Center,False
+2026-11-27,Radford @ American,Radford,American,American,77.0,10.4,144.0,4:00 PM,Bender Arena,False
+2026-11-27,AR-Pine Bluff @ Missouri,AR-Pine Bluff,Missouri,Missouri,98.3,34.8,156.4,4:00 PM,Mizzou Arena,False
+2026-11-27,Niagara @ Lafayette,Niagara,Lafayette,Lafayette,82.3,13.2,144.1,4:30 PM,Kirby Sports Center,False
+2026-11-27,Cincinnati vs. Boston College,Cincinnati,Boston College,Cincinnati,50.0,2.4,137.6,4:30 PM,State Farm Field House,True
+2026-11-27,Villanova @ Kansas,Villanova,Kansas,Kansas,83.1,13.7,150.3,5:00 PM,Allen Fieldhouse,False
+2026-11-27,Old Dominion @ Virginia Tech,Old Dominion,Virginia Tech,Virginia Tech,84.1,14.3,150.3,5:00 PM,Cassell Coliseum,False
+2026-11-27,Texas A&M vs. Marquette,Texas A&M,Marquette,Marquette,71.7,5.5,150.2,5:00 PM,Imperial Arena,True
+2026-11-27,Drake vs. Boise St,Drake,Boise St,Boise St.,55.1,0.6,153.5,5:30 PM,Mountain America Center,True
+2026-11-27,Bowling Green @ Indiana,Bowling Green,Indiana,Indiana,85.3,15.1,154.8,6:00 PM,Simon Skjodt Assembly Hall,False
+2026-11-27,Towson @ Penn,Towson,Penn,Towson,58.1,2.6,142.3,6:00 PM,The Palestra,False
+2026-11-27,W Kentucky @ Illinois,W Kentucky,Illinois,Illinois,94.7,24.6,155.5,6:00 PM,State Farm Center,False
+2026-11-27,Southern Wesleyan @ SC Upstate,Southern Wesleyan,SC Upstate,USC Upstate,77.0,10.4,153.2,6:00 PM,G.B. Hodge Center,False
+2026-11-27,Charleston So @ E Tennessee St,Charleston So,E Tennessee St,ETSU,57.0,2.6,149.7,7:00 PM,Freedom Hall Civic Center,False
+2026-11-27,West Virginia vs. North Carolina,West Virginia,North Carolina,North Carolina,57.3,0.1,150.2,7:00 PM,Spectrum Center,True
+2026-11-27,Lehigh vs. UCSB,Lehigh,UCSB,UC Santa Barbara,73.0,6.1,139.1,7:00 PM,Gilbert Arena,True
+2026-11-27,UCF vs. Georgia,UCF,Georgia,Georgia,77.8,8.2,159.5,7:00 PM,State Farm Field House,True
+2026-11-27,Oakland @ Houston,Oakland,Houston,Houston,97.4,30.8,153.8,7:30 PM,Fertitta Center,False
+2026-11-27,Northeastern @ Northwestern,Northeastern,Northwestern,Northwestern,73.9,9.0,149.9,8:00 PM,Welsh-Ryan Arena,False
+2026-11-27,Pacific vs. UC Davis,Pacific,UC Davis,UC Davis,51.1,2.0,140.5,8:00 PM,Resorts World Events Center,True
+2026-11-27,Idaho @ Washington St,Idaho,Washington St,Washington St.,56.1,2.3,152.8,8:00 PM,Beasley Coliseum,False
+2026-11-27,N Texas vs. N Dakota St,N Texas,N Dakota St,North Texas,59.2,5.5,147.4,8:00 PM,Mountain America Center,True
+2026-11-27,Missouri St @ Oral Roberts,Missouri St,Oral Roberts,Oral Roberts,72.9,8.6,147.4,8:00 PM,Mabee Center,False
+2026-11-27,Wichita St @ Kentucky,Wichita St,Kentucky,Wichita St.,55.5,1.7,153.0,9:00 PM,Rupp Arena,False
